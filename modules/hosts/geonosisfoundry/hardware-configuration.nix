@@ -1,6 +1,6 @@
 { self, inputs, ... }: {
     flake.nixosModules.geonosisfoundryHardware = { config, modulesPath, pkgs, lib, ... }: {
-        import = [ (modulesPath + "/virtualisation/proxmox-lxc.nix") ];
+        imports = [ (modulesPath + "/virtualisation/proxmox-lxc.nix") ];
 
         nix.settings = {
             sandbox = false;
