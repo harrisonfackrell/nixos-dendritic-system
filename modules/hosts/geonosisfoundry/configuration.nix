@@ -2,7 +2,7 @@
     flake.nixosModules.geonosisfoundryConfiguration = { config, lib, pkgs, modulesPath, ... }: {
         imports = [
             self.nixosModules.geonosisfoundryHardware
-            inputs.nix-amd-ai.nixosModules.amd-ai
+            inputs.nix-amd-ai.nixosModules.default
         ];
 
         nix.settings = {
