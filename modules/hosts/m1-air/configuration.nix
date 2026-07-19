@@ -8,8 +8,6 @@
             inputs.apple-silicon.nixosModules.apple-silicon-support
         ];
 
-        hardware.asahi.peripheralFirmwareDirectory = ./firmware;
-
         nix.settings = {
             extra-substituters = [
                 "https://nixos-apple-silicon.cachix.org"

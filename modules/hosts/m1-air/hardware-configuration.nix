@@ -9,6 +9,8 @@
 
         hardware.asahi.enable = true;
 
+        hardware.asahi.peripheralFirmwareDirectory = /boot/vendorfw;
+
         fileSystems."/" = {
             device = "/dev/disk/by-uuid/679237a9-1b36-4c82-a180-4d655c3e3717";
             fsType = "ext4";
