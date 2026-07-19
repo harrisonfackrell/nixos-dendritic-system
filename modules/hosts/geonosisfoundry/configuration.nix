@@ -3,7 +3,6 @@
         imports = [
             self.nixosModules.geonosisfoundryHardware
             self.nixosModules.llamaswap
-            self.nixosModules.lemonade
         ];
 
         nix.settings = {
