@@ -12,8 +12,6 @@
         nixpkgs.config.allowUnfree = true;
 
         networking = {
-            hostName = "geonosisfoundry";
-            networkmanager.enable = true;
             nftables.enable = true;
         };
 
