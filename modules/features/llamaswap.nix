@@ -8,7 +8,7 @@
         listenAddress = "0.0.0.0";
         port = 5001;
         settings = let
-          llama-cpp = pkgs.llama-cpp-rocm;
+          llama-cpp = pkgs.llama-cpp-vulkan;
           llama-server = lib.getExe' llama-cpp "llama-server";
         in {
           healthCheckTimeout = 60;
