@@ -30,6 +30,10 @@
             wget
             git
             htop
+            pciutils
+            vulkan-tools
+            rocmPackages.rocminfo
+            rocmPackages.rocm-smi
         ];
 
         system.stateVersion = "25.05";

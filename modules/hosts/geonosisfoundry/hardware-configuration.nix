@@ -14,13 +14,5 @@
         services.fstrim.enable = false; # Let Proxmox host handle fstrim
 
         hardware.graphics.enable = true;
-
-        environment.systemPackages = with pkgs; [
-            pciutils
-            vulkan-tools
-            rocmPackages.rocminfo
-            rocmPackages.rocm-smi
-        #    llama-cpp-vulkan
-        ];
-    }
+    };
 }
