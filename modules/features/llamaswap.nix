@@ -117,7 +117,7 @@
             };
             # Programming
             "Qwen3.6 Dense" = {
-              cmd = "${llama-server} -lv 4 --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m /etc/nixos/ai/models/text/qwopus3.6-27b-MTP-q6_K.gguf --spec-type draft-mtp";
+              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m /etc/nixos/ai/models/text/qwopus3.6-27b-MTP-q6_K.gguf --spec-type draft-mtp";
               filters = {
                 setParams = {
                   temperature = 0.6;
