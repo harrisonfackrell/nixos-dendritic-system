@@ -71,13 +71,13 @@
             vscodium
             git
             libreoffice
-	    nodejs
-	    sqlite
-	    python3
-	    gnumake
-	    gcc
-	    vlc
-	    lsof
+            nodejs
+            sqlite
+            python3
+            gnumake
+            gcc
+            vlc
+            lsof
         ];
 
         system.stateVersion = "25.11";
