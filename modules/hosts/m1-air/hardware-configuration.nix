@@ -7,6 +7,8 @@
         boot.kernelModules = [ ];
         boot.extraModulePackages = [ ];
 
+        hardware.asahi.enable = true;
+
         fileSystems."/" = {
             device = "/dev/disk/by-uuid/679237a9-1b36-4c82-a180-4d655c3e3717";
             fsType = "ext4";
