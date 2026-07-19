@@ -15,9 +15,6 @@
             url = "github:BirdeeHub/nix-wrapper-modules";
             inputs.nixpkgs.follows = "nixpkgs";
         };
-        nix-amd-ai = {
-            url = "github:noamsto/nix-amd-ai/main";
-        };
     };
 
     outputs = inputs:
