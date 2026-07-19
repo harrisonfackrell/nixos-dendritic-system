@@ -3,7 +3,6 @@
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
         flake-parts = {
             url = "github:hercules-ci/flake-parts";
-            #inputs.nixpkgs.follows = "nixpkgs";
         };
         apple-silicon = {
             url = "github:nix-community/nixos-apple-silicon";
@@ -11,7 +10,6 @@
         };
         import-tree = {
             url = "github:vic/import-tree";
-            #inputs.nixpkgs.follows = "nixpkgs";
         };
         wrapper-modules = {
             url = "github:BirdeeHub/nix-wrapper-modules";
@@ -19,7 +17,6 @@
         };
         nix-amd-ai = {
             url = "github:noamsto/nix-amd-ai/main";
-            inputs.nixpkgs.follows = "nixpkgs";
         };
     };
 
