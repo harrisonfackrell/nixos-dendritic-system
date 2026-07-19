@@ -3,7 +3,7 @@
         programs.uwsm = {
             enable = true; 
             waylandCompositors = {
-                mangowc = {
+                mango = {
                     prettyName = "Mango";
                     comment = "Mango compositor managed by UWSM";
                     binPath = "/run/current-system/sw/bin/mango";
@@ -43,6 +43,7 @@
     perSystem = { pkgs, lib, ... }: {
         packages.neomango = inputs.wrapper-modules.wrappers.mangowc.wrap {
             inherit pkgs;
+            package = pkgs.mango; #necessary until wrapper-modules references correct package
             settings = {
                 bind = [
                     "SUPER,1,view,1"
