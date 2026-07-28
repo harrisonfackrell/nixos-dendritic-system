@@ -31,6 +31,7 @@
             pkgs.playerctl
             pkgs.pavucontrol
             pkgs.firefox
+            pkgs.pcmanfm-qt
             pkgs.kdePackages.dolphin
             pkgs.kdePackages.breeze
             pkgs.kdePackages.breeze-icons
@@ -67,7 +68,7 @@
                     "SUPER,w,spawn,firefox"
                     "SUPER,d,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofuzzel}"
                     "SUPER,t,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot}"
-                    "SUPER,f,spawn,dolphin"
+                    "SUPER,f,spawn,pcmanfm-qt"
                     "SUPER+SHIFT,q,killclient"
                     "SUPER+SHIFT,up,zoom"
                     "SUPER,left,focusstack,prev"
