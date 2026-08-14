@@ -11,6 +11,14 @@
           llama-cpp = pkgs.llama-cpp-vulkan;
           llama-server = lib.getExe' llama-cpp "llama-server";
         in {
+          qwen38-model = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q5_K_XL.gguf";
+            sha256 = "176a6a3f034e9cdc447c10cd00329fc9b31002e6589b9295f2ad4f1eefe0f6ab";
+          };
+          qwen38-mmproj = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-BF16.gguf";
+            sha256 = "83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53";
+          };
           healthCheckTimeout = 60;
           models = {
             # Roleplaying
@@ -116,8 +124,8 @@
               };
             };
             # Programming
-            "Qwen3.6 Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m /etc/nixos/ai/models/text/qwopus3.6-27b-MTP-q6_K.gguf --spec-type draft-mtp";
+            "Qwen3.8 Dense" = {
+              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m ${qwen38-model} --mmproj ${qwen38-mmproj} --spec-type draft-mtp";
               filters = {
                 setParams = {
                   temperature = 0.6;
