@@ -211,5 +211,11 @@
           hooks.on_startup.preload = [ "" ];
         };
       };
+      systemd.services.llama-swap = {
+        serviceConfig = {
+          DynamicUser = lib.mkForce false;
+          LimitMEMLOCK = "infinity";
+        };
+      };
     };
 }
