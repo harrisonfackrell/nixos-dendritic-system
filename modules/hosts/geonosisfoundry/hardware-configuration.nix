@@ -13,7 +13,10 @@
 
         services.fstrim.enable = false; # Let Proxmox host handle fstrim
 
-        hardware.graphics.enable = true;
+        hardware.graphics = {
+            enable = true;
+            enable32Bit = true;
+        };
 
         nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     };
