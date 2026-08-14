@@ -211,13 +211,5 @@
           hooks.on_startup.preload = [ "" ];
         };
       };
-      systemd.services.llama-swap = {
-        environment.XDG_CACHE_HOME = "/var/cache/llama.cpp";
-        serviceConfig = {
-          DynamicUser = lib.mkForce false;
-          CacheDirectory = "llama.cpp";
-          LimitMEMLOCK = "infinity";
-        };
-      };
     };
 }
