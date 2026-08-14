@@ -175,9 +175,16 @@
                 margin = "0";
                 modules-left = [ "custom/poweroff" "custom/logout" "custom/suspend" ];
                 modules-center = [ "dwl/window" ];
-                modules-right = [ "pulseaudio" "battery" "clock" ];
+                modules-right = [ "cpu" "memory" "pulseaudio" "battery" "clock" ];
                 "dwl/window" = {
                     format = "{app_id}";
+                };
+                cpu = {
+                    format = "CPU: {usage}%";
+                };
+                memory = {
+                    format = "MEM: {percentage}%";
+                    format-detail = "{used:0}/{total:0}";
                 };
                 clock = {
                     tooltip-format = "<tt><small>{calendar}</small></tt>";
@@ -236,7 +243,7 @@
                     color: @theme_fg_color;
                 }
 
-                #window, #clock, #battery, #pulseaudio, #custom-poweroff, #custom-logout, #custom-suspend {
+                #window, #clock, #battery, #pulseaudio, #cpu, #memory, #custom-poweroff, #custom-logout, #custom-suspend {
                     padding: 0 0.5rem;
                 }
 
