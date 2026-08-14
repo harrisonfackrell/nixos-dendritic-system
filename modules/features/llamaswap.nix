@@ -128,7 +128,7 @@
               cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m ${qwen38-model} --mmproj ${qwen38-mmproj} --spec-type draft-mtp";
               filters = {
                 setParams = {
-                  temperature = 0.6;
+                  temperature = 1.0;
                   top_p = 0.95;
                   top_k = 20;
                   min_p = 0.0;
@@ -145,7 +145,7 @@
                     top_p = 0.95;
                     top_k = 20;
                     min_p = 0.0;
-                    presence_penalty = 0.5;
+                    presence_penalty = 0.0;
                     repetition_penalty = 1.0;
                     chat_template_kwargs = {
                       enable_thinking = true;
