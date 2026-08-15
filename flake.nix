@@ -15,6 +15,10 @@
             url = "github:BirdeeHub/nix-wrapper-modules";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+        noctalia-shell = {
+            url = "github:noctalia-dev/noctalia";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
 
     outputs = inputs:
