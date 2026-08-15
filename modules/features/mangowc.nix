@@ -175,18 +175,12 @@
                 margin = "0";
                 modules-left = [ "custom/poweroff" "custom/logout" "custom/suspend" ];
                 modules-center = [ "dwl/window" ];
-                modules-right = [ "cpu" "custom/memory" "pulseaudio" "battery" "clock" ];
+                modules-right = [ "cpu" "pulseaudio" "battery" "clock" ];
                 "dwl/window" = {
                     format = "{app_id}";
                 };
                 cpu = {
                     format = "CPU: {usage}%";
-                };
-                "custom/memory" = {
-                    exec = ''free -m | awk '/^Mem:/ {printf "MEM: %.0f%%", $3/$2*100}' '';
-                    interval = 30;
-                    tooltip = true;
-                    tooltip-format = ''free -h | awk '/^Mem:/ {print $3" used of "$2}' '';
                 };
                 clock = {
                     tooltip-format = "<tt><small>{calendar}</small></tt>";
