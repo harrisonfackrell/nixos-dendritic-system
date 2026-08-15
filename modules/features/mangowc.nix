@@ -32,12 +32,12 @@
             pkgs.pavucontrol
             pkgs.firefox
             pkgs.pcmanfm-qt
+            pkgs.ashell
             pkgs.kdePackages.dolphin
             pkgs.kdePackages.breeze
             pkgs.kdePackages.breeze-icons
             pkgs.kdePackages.ark
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
-            self.packages.${pkgs.stdenv.hostPlatform.system}.neowaybar
         ];
     };
 
@@ -96,7 +96,7 @@
                     "NONE,XF86AudioPlay,spawn,playerctl play-pause"
                     "SUPER+ALT,t,setlayout,tile"
                     "SUPER+ALT,b,setlayout,vertical_tile"
-                    "SUPER,x,spawn,kill -s SIGUSR1 $(pidof waybar)"
+                    "SUPER,x,spawn,ashell msg toggle-visibility"
                     "SUPER+SHIFT,l,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"
                 ];
                 gesturebind = [
@@ -116,7 +116,7 @@
                          url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/wallpapers/nixos-wallpaper-catppuccin-macchiato.svg";
                         hash = "sha256-oqHkFIjgbkcCuxHANOQb/mU8tMThPFZo/2h83BvPPNo=";
                     }} -m fill''
-                    "waybar"
+                    "ashell"
                 ];
                 new_is_master = 0;
                 sloppyfocus = 1;
@@ -159,98 +159,6 @@
                 }}";
                 scaling = "fill";
             };
-        };
-        packages.neowaybar = inputs.wrapper-modules.wrappers.waybar.wrap {
-            inherit pkgs;
-            settings = {
-                layer = "bottom";
-                position = "top";
-                exclusive = true;
-                passthrough = false;
-                gtk-layer-shell = true;
-                ipc = false;
-                start_hidden = true;
-                fixed-center = true;
-                height = 30;
-                margin = "0";
-                modules-left = [ "custom/poweroff" "custom/logout" "custom/suspend" ];
-                modules-center = [ "dwl/window" ];
-                modules-right = [ "cpu" "pulseaudio" "battery" "clock" ];
-                "dwl/window" = {
-                    format = "{app_id}";
-                };
-                cpu = {
-                    format = "CPU: {usage}%";
-                };
-                clock = {
-                    tooltip-format = "<tt><small>{calendar}</small></tt>";
-                    format-alt = "{:%m/%d/%Y}";
-                    format = "{:%I:%M %p}";
-                };
-                battery = {
-                    states = {
-                        warning = 30;
-                        critical = 15;
-                    };
-                    format = "Battery: {capacity}%";
-                    tooltip = true;
-                    tooltip-format = "{time}";
-                };
-                pulseaudio = {
-                    disable-scroll = true;
-                    format = "Volume: {volume}%";
-                    on-click = "pavucontrol";
-                };
-                "custom/poweroff" = {
-                    format = "⏻";
-                    tooltip = true;
-                    tooltip-format = "Power Off";
-                    on-click = "systemctl poweroff";
-                };
-                "custom/logout" = {
-                    format = "⏼";
-                    tooltip = true;
-                    tooltip-format = "Log Out";
-                    on-click = "uwsm stop";
-                };
-                "custom/suspend" = {
-                    format = "⏾";
-                    tooltip = true;
-                    tooltip-format = "Suspend";
-                    on-click = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock} & systemctl suspend";
-                };
-            };
-            "style.css".content = ''
-                @define-color theme_fg_color #d8dee9;
-                @define-color theme_bg_color #434c5e;
-                @define-color warning_color #c3674a;
-                @define-color success_color #89aa61;
-
-                * {
-                    font-size: 17px;
-                    border: none;
-                    border-radius: 0;
-                    margin: 0;
-                    padding: 0;
-                }
-
-                #waybar {
-                    background: @theme_bg_color;
-                    color: @theme_fg_color;
-                }
-
-                #window, #clock, #battery, #pulseaudio, #cpu, #custom-memory, #custom-poweroff, #custom-logout, #custom-suspend {
-                    padding: 0 0.5rem;
-                }
-
-                #battery.charging {
-                    color: @success_color;
-                }
-
-                #battery.warning:not(.charging) {
-                    color: @warning_color;
-                }
-            '';
         };
     };
 }
