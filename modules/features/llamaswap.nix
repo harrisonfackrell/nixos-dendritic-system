@@ -10,20 +10,63 @@
         settings = let
           llama-cpp = pkgs.llama-cpp-vulkan;
           llama-server = lib.getExe' llama-cpp "llama-server";
-          qwen38-model = pkgs.fetchurl {
+          # Roleplaying
+          meromero-sparse = pkgs.fetchurl {
+            url = "https://huggingface.co/zerofata/G4-MeroMero-26B-A4B-gguf/resolve/main/G4-MeroMero-26B-A4B-Q6_K.gguf";
+            sha256 = "d507f52a54b21fd3b3a0579a7154be4a9ea77e4ee01b5f6eaaff287e863f48e9";
+          };
+          glisteninggem-dense = pkgs.fetchurl {
+            url = "https://huggingface.co/zerofata/Glistening-Gem-31B-v2.0-gguf/resolve/main/Glistening-Gem-31B-v2.0-Q6_K.gguf";
+            sha256 = "4908baa9010897ddd76be83f12dc481e2e56d81b7a3581ce28dec021bce91eee";
+          };
+          # General Productivity
+          gemma4-sparse = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/gemma-4-26B-A4B-it-qat-GGUF/resolve/main/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf";
+            sha256 = "a7c5bc715f5ff8e99a3e8901ce7d2b42b402c669bf24f7c5250747633d0f5891";
+          };
+          gemma4-sparse-mmproj = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/gemma-4-26B-A4B-it-qat-GGUF/resolve/main/mmproj-F32.gguf";
+            sha256 = "ef269e294502d6ee3722cbf129681b2586c2e6ceb79d0507963c92146e058cd4";
+          };
+          gemma4-sparse-mtp = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/gemma-4-26B-A4B-it-qat-GGUF/resolve/main/mtp-gemma-4-26B-A4B-it.gguf";
+            sha256 = "7272d97595f0d4c74bd7b623492b7dbdaafd8b7c72f329a8270ba4eca68f768a";
+          };
+          gemma4-dense = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF/resolve/main/gemma-4-31B-it-qat-UD-Q4_K_XL.gguf";
+            sha256 = "00b5a7c497f0c8934033088c10a7fa9a4c015e46ee6d89e9c6890650ba5d0e71";
+          };
+          gemma4-dense-mmproj = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF/resolve/main/mmproj-F32.gguf";
+            sha256 = "7a890d25bbc0a2ce70c3723ad57092d4a5ad98bb2115ed80561f990003c6e88a";
+          };
+          gemma4-dense-mtp = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/gemma-4-31B-it-qat-GGUF/resolve/main/mtp-gemma-4-31B-it.gguf";
+            sha256 = "3a5e99fd8d0b23afb1fccd1ee0c9ebd1f571d00399c2dae2292d217feeec0f6b";
+          };
+          # Programming
+          qwen38-dense = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q5_K_XL.gguf";
             sha256 = "176a6a3f034e9cdc447c10cd00329fc9b31002e6589b9295f2ad4f1eefe0f6ab";
           };
-          qwen38-mmproj = pkgs.fetchurl {
+          qwen38-dense-mmproj = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-BF16.gguf";
             sha256 = "83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53";
+          };
+          qwen36-sparse = pkgs.fetchurl {
+            url = "https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF/resolve/main/Qwopus3.6-35B-A3B-Coder-MTP-Q5_K_M.gguf";
+            sha256 = "b163e7cd4e8efef6f5fba979935e1b1b1a6db0f1330bf7ff129c87250d25e972";
+          };
+          qwen36-sparse-mmproj = pkgs.fetchurl {
+            url = "https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF/resolve/main/mmproj-F32.gguf";
+            sha256 = "5c82c8095717b39f29c88ebfec3607a10307785b1e14a87744603d6c582cd497";
           };
         in {
           healthCheckTimeout = 60;
           models = {
             # Roleplaying
             "MeroMero Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit on --cache-ram 0 --fit-target 0 --swa-full --jinja -m /etc/nixos/ai/models/text/meromero-26b-a4b-q6_K.gguf --mmproj /etc/nixos/ai/models/vision/gemma4-26b-a4b-mmproj.gguf";
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit on --cache-ram 0 --fit-target 0 --swa-full --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -47,8 +90,8 @@
                 };
               };
             };
-            "MeroMero Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu -b 8192 --port $\{PORT\} --fit-target 0 --cache-ram 0 --ctx-checkpoints 0 --jinja -m /etc/nixos/ai/models/text/meromero-31b-q6_K.gguf --mmproj /etc/nixos/ai/models/vision/gemma4-31b-mmproj.gguf";
+            "GlisteningGem Dense" = {
+              cmd = "${llama-server} --no-ui -np 1 -kvu -b 8192 --port $\{PORT\} --fit-target 0 --cache-ram 0 --ctx-checkpoints 0 --jinja -m ${glisteninggem-dense} --mmproj ${gemma4-dense-mmproj}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -74,7 +117,7 @@
             };
             # General Productivity
             "Gemma4 Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 0 --swa-full --jinja -m /etc/nixos/ai/models/text/gemma4-26b-a4b-q4_K_XL.gguf --mmproj /etc/nixos/ai/models/vision/gemma4-26b-a4b-mmproj.gguf --spec-type draft-mtp -md /etc/nixos/ai/models/draft/gemma4-26b-a4b.gguf";
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 0 --swa-full --jinja -m ${gemma4-sparse} --mmproj ${gemma4-sparse-mmproj} --spec-type draft-mtp -md ${gemma4-sparse-mtp}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -99,7 +142,7 @@
               };
             };
             "Gemma4 Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 0 --swa-full --jinja -m /etc/nixos/ai/models/text/gemma4-31b-q4_K_XL.gguf --mmproj /etc/nixos/ai/models/vision/gemma4-31b-mmproj.gguf --spec-type draft-mtp -md /etc/nixos/ai/models/draft/gemma4-31b.gguf";
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 0 --swa-full --jinja -m ${gemma4-dense} --mmproj ${gemma4-dense-mmproj} --spec-type draft-mtp -md ${gemma4-dense-mtp}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -125,7 +168,7 @@
             };
             # Programming
             "Qwen3.8 Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m ${qwen38-model} --mmproj ${qwen38-mmproj} --spec-type draft-mtp";
+              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 16 --cache-ram 512 --port $\{PORT\} --fit-target 0 --jinja -m ${qwen38-dense} --mmproj ${qwen38-dense-mmproj} --spec-type draft-mtp";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -167,7 +210,7 @@
               };
             };
             "Qwen3.6 Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 32 --cache-ram 256 --port $\{PORT\} --fit-target 0 --jinja -m /etc/nixos/ai/models/text/qwopus3.6-35b-a3b-MTP-q5_K_M.gguf --spec-type draft-mtp --spec-draft-n-max 2";
+              cmd = "${llama-server} --no-ui -np 1 -kvu -ctxcp 32 --cache-ram 256 --port $\{PORT\} --fit-target 0 --jinja -m ${qwen36-sparse} --mmproj ${qwen36-sparse-mmproj} --spec-type draft-mtp --spec-draft-n-max 2";
               filters = {
                 setParams = {
                   temperature = 0.7;
