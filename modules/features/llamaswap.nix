@@ -180,6 +180,7 @@
                   chat_template_kwargs = {
                     enable_thinking = true;
                     preserve_thinking = true;
+                    reasoning_effort = "medium";
                   };
                 };
                 setParamsByID = {
@@ -193,6 +194,7 @@
                     chat_template_kwargs = {
                       enable_thinking = true;
                       preserve_thinking = true;
+                      reasoning_effort = "medium";
                     };
                   };
                   "$\{MODEL_ID\} (Instruct)" = {
