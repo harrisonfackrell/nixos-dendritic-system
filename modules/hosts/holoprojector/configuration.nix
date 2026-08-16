@@ -29,17 +29,20 @@
             extraGroups = [ "networkmanager" "wheel" "video" "render" ];
         };
 
-        services.displayManager = {
-            sddm = {
-                enable = true;
-                wayland = {
+        services = {
+            desktopManager.plasma6.enable = true;
+            displayManager = {
+                sddm = {
                     enable = true;
-                    compositor = "kwin";
+                    wayland = {
+                        enable = true;
+                        compositor = "kwin";
+                    };
+                    theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
+                    extraPackages = with pkgs; [
+                        qt6.qtmultimedia
+                    ];
                 };
-                theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
-                extraPackages = with pkgs; [
-                    qt6.qtmultimedia
-                ];
             };
         };
 
