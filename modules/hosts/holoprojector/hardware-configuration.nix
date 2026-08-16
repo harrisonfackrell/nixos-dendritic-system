@@ -1,5 +1,5 @@
 { config, lib, pkgs, modulesPath, ... }: {
-    # Hardware configuration for holoprojector
+    flake.nixosModules.holoprojectorHardware = { config, modulesPath, pkgs, lib, ... }: {
 
-    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+    };
 }
