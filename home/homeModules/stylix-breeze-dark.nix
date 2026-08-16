@@ -1,5 +1,5 @@
 { inputs, ... }: {
-    flake.homeModules.stylix-breeze-dark = { config, pkgs, lib, ... }: {
+    flake.homeManagerModules.stylix-breeze-dark = { config, pkgs, lib, ... }: {
         imports = [
             inputs.stylix.homeModules.stylix
         ];
