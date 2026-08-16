@@ -9,6 +9,56 @@
             inputs.home-manager.nixosModules.home-manager
         ];
 
+        home-manager = {
+            useUserPackages = true;
+            extraSpecialArgs = { inherit self inputs; };
+            users.obiwanshinobi = {
+                imports = [
+                    self.homeModules.noctalia
+                    self.homeModules.stylix-breeze-dark
+                ];
+                home = {
+                    packages = with pkgs; [
+                        neovim
+                        wget
+                        vscodium
+                        git
+                        gimp
+                        libreoffice
+                        nodejs
+                        sqlite
+                        python3
+                        gnumake
+                        gcc
+                        vlc
+                        lsof
+                    ];
+                    stateVersion = config.system.stateVersion;
+                };
+            };
+        };
+
+        programs.dconf.enable = true; #Necessary for Stylix
+
+        users.users.obiwanshinobi = {
+            isNormalUser = true;
+            extraGroups = [ "wheel" ];
+        };
+
+        services.displayManager = {
+            sddm = {
+                enable = true;
+                wayland = {
+                    enable = true;
+                    compositor = "kwin";
+                };
+                theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
+                extraPackages = with pkgs; [
+                    qt6.qtmultimedia
+                ];
+            };
+        };
+
         nixpkgs.config.allowUnfree = true;
 
         nix.settings = {
@@ -31,57 +81,6 @@
 
         time.timeZone = "America/Denver";
 
-        services.displayManager = {
-            sddm = {
-                enable = true;
-                wayland = {
-                    enable = true;
-                    compositor = "kwin";
-                };
-                theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
-                extraPackages = with pkgs; [
-                    qt6.qtmultimedia
-                ];
-            };
-        };
-
-        programs.dconf.enable = true;
-
-        users.users.obiwanshinobi = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" ];
-            packages = with pkgs; [
-            
-            ];
-        };
-
-        environment.systemPackages = with pkgs; [
-            neovim
-            wget
-            vscodium
-            git
-            libreoffice
-            nodejs
-            sqlite
-            python3
-            gnumake
-            gcc
-            vlc
-            lsof
-        ];
-
         system.stateVersion = "25.11";
-
-        home-manager = {
-            useUserPackages = true;
-            extraSpecialArgs = { inherit self inputs; };
-            users.obiwanshinobi = {
-                imports = [
-                    self.homeModules.noctalia
-                    self.homeModules.stylix-breeze-dark
-                ];
-                home.stateVersion = config.system.stateVersion;
-            };
-        };
     };
 }
