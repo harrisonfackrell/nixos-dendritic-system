@@ -31,9 +31,25 @@
 
         time.timeZone = "America/Denver";
 
-        services = {
-            # desktopManager.plasma6.enable = true;
-            displayManager.plasma-login-manager.enable = true;
+        services.displayManager = {
+            sddm = {
+                enable = true;
+                wayland = {
+                    enable = true;
+                    compositor = "kwin";
+                };
+                theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
+                extraPackages = with pkgs; [
+                    qt6.qtmultimedia
+                    apple-cursor
+                ];
+                settings = {
+                    Theme = {
+                        CursorTheme = "macOS";
+                        Size = 24;
+                    };
+                };
+            };
         };
 
         programs.dconf.enable = true;

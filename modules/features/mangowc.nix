@@ -114,10 +114,10 @@
                     "name:^eDP-1$,width:2560,height:1600,refresh:60,x:0,y:10,scale:1.5"
                 ];
                 exec-once = [
-                    ''${lib.getExe pkgs.swaybg} -i ${pkgs.fetchurl {
-                         url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/wallpapers/nixos-wallpaper-catppuccin-macchiato.svg";
-                        hash = "sha256-oqHkFIjgbkcCuxHANOQb/mU8tMThPFZo/2h83BvPPNo=";
-                    }} -m fill''
+                    ''${lib.getExe pkgs.swaybg} -i "${pkgs.fetchurl {
+                        url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/refs/heads/master/wallpapers/nixos-wallpaper-catppuccin-mocha.png";
+                        hash = "sha256-fmKFYw2gYAYFjOv4lr8IkXPtZfE1+88yKQ4vjEcax1s=";
+                    }}" -m fill''
                     "noctalia"
                 ];
                 new_is_master = 0;

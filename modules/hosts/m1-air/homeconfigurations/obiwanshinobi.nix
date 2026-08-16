@@ -38,6 +38,8 @@
 
         stylix = {
             enable = true;
+            targets.qt.colors.enable = false;
+            targets.noctalia-shell.enable = true;
             icons = {
                 enable = true;
                 package = pkgs.kdePackages.breeze-icons;
@@ -45,16 +47,18 @@
                 dark = "breeze-dark";
             };
             cursor = {
-                name = "macOS";
-                package = pkgs.apple-cursor;
+                name = "breeze_cursors";
+                package = pkgs.kdePackages.breeze;
                 size = 24;
             };
             image = "${pkgs.fetchurl {
-                url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/refs/heads/master/wallpapers/nixos-wallpaper-catppuccin-macchiato.png";
-                hash = "sha256-SkXrLbHvBOItJ7+8vW+6iXV+2g0f8bUJf9KcCXYOZF0=";
+                url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/refs/heads/master/wallpapers/nixos-wallpaper-catppuccin-mocha.png";
+                hash = "sha256-fmKFYw2gYAYFjOv4lr8IkXPtZfE1+88yKQ4vjEcax1s=";
             }}";
             polarity = "dark";
         };
+
+        qt.style.name = lib.mkForce "adwaita-dark";
 
         home.packages = with pkgs; [
             neovim
