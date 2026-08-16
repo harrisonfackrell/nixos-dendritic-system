@@ -130,6 +130,7 @@
                 smartgaps = 1;
                 borderpx = 1;
                 default_mfact = 0.5;
+                cursor_size = 48;
             };
         };
         packages.neofuzzel = inputs.wrapper-modules.wrappers.fuzzel.wrap {

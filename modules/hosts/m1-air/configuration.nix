@@ -30,7 +30,7 @@
         time.timeZone = "America/Denver";
 
         services = {
-            desktopManager.plasma6.enable = true;
+            # desktopManager.plasma6.enable = true;
             displayManager.plasma-login-manager.enable = true;
         };
 
@@ -93,11 +93,24 @@
 
                 programs.noctalia.enable = true;
                 programs.noctalia.settings = {
-                    wallpaper.enabled = false;
+                    wallpaper = {
+                        enabled = false;
+                    };
+                    widget.clock-12h = {
+                        type   = "clock";
+                        format = "{:%-I:%M %p}";
+                    };
+                    bar.default = {
+                        radius = 0;
+                        reserve_space = true;
+                        margin_ends = 0;
+                        start = [ "launcher" "workspaces" ];
+                        center = [ "clock-12h" ];
+                    };
                     shell = {
                         font = "JetBrainsMono Nerd Font";
                         settings_show_advanced = true;
-                        actions = [
+                        session.actions = [
                             { action = "lock"; command = "${pkgs.swaylock}/bin/swaylock"; }
                             { action = "suspend"; command = "systemctl suspend"; }
                             { action = "shutdown"; command = "systemctl poweroff"; }
