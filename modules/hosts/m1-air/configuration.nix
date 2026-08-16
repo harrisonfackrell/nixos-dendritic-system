@@ -41,39 +41,11 @@
                 theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
                 extraPackages = with pkgs; [
                     qt6.qtmultimedia
-                    apple-cursor
                 ];
-                settings = {
-                    Theme = {
-                        CursorTheme = "macOS";
-                        Size = 24;
-                    };
-                };
             };
         };
 
         programs.dconf.enable = true;
-
-        environment.plasma6.excludePackages = with pkgs.kdePackages; [
-            aurorae
-            plasma-browser-integration
-            plasma-workspace-wallpapers
-            konsole
-            kwin-x11
-            ark
-            elisa
-            gwenview
-            okular
-            kate
-            ktexteditor # provides elevated actions for kate
-            khelpcenter
-            dolphin
-            baloo-widgets # baloo information in Dolphin
-            dolphin-plugins
-            spectacle
-            ffmpegthumbs
-            krdp
-        ];
 
         users.users.obiwanshinobi = {
             isNormalUser = true;
