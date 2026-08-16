@@ -38,7 +38,6 @@
             pkgs.kdePackages.breeze-icons
             pkgs.kdePackages.ark
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
-            self.packages.${pkgs.stdenv.hostPlatform.system}.neonoctalia
         ];
     };
 
@@ -67,7 +66,7 @@
                     "SUPER+SHIFT,8,tagsilent,8"
                     "SUPER+SHIFT,9,tagsilent,9"
                     "SUPER,w,spawn,firefox"
-                    "SUPER,d,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neonoctalia} msg panel-toggle launcher"
+                    "SUPER,d,spawn,noctalia msg panel-toggle launcher"
                     "SUPER,t,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot}"
                     "SUPER,f,spawn,pcmanfm-qt"
                     "SUPER+SHIFT,q,killclient"
@@ -99,7 +98,7 @@
                     "NONE,XF86AudioPlay,spawn,playerctl play-pause"
                     "SUPER+ALT,t,setlayout,tile"
                     "SUPER+ALT,b,setlayout,vertical_tile"
-                    "SUPER,x,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neonoctalia} msg bar-toggle"
+                    "SUPER,x,spawn,noctalia msg bar-toggle"
                     "SUPER+SHIFT,l,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"
                 ];
                 gesturebind = [
@@ -119,7 +118,7 @@
                          url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/9d2cdedd73d64a068214482902adea3d02783ba8/wallpapers/nixos-wallpaper-catppuccin-macchiato.svg";
                         hash = "sha256-oqHkFIjgbkcCuxHANOQb/mU8tMThPFZo/2h83BvPPNo=";
                     }} -m fill''
-                    "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neonoctalia}"
+                    "noctalia"
                 ];
                 new_is_master = 0;
                 sloppyfocus = 1;
@@ -161,20 +160,6 @@
                     hash = "sha256-rR2XXN82UBPPxWoLn5DppZO8ei9m8nrO/y3VxSKDP2k=";
                 }}";
                 scaling = "fill";
-            };
-        };
-        packages.neonoctalia = inputs.wrapper-modules.wrappers.noctalia-shell.wrap {
-            inherit pkgs;
-            package = inputs.noctalia-shell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-            settings = {
-                wallpaper.enabled = false;
-                shell.session.actions = [
-                    { action = "lock"; command = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"; }
-                    { action = "suspend"; command = "systemctl suspend"; }
-                    { action = "shutdown"; command = "systemctl poweroff"; }
-                    { action = "logout"; command = "uwsm stop"; }
-                    { action = "reboot"; command = "systemctl reboot"; }
-                ];
             };
         };
     };

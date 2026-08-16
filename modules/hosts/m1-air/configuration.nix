@@ -6,6 +6,7 @@
             self.nixosModules.firefox
             self.nixosModules.plymouth
             inputs.apple-silicon.nixosModules.apple-silicon-support
+            inputs.home-manager.nixosModules.home-manager
         ];
 
         nix.settings = {
@@ -78,5 +79,45 @@
         ];
 
         system.stateVersion = "25.11";
+
+        home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = { inherit self inputs; };
+            users.obiwanshinobi = {
+                home.stateVersion = config.system.stateVersion;
+
+                imports = [
+                    inputs.noctalia.homeModules.default
+                ];
+
+                programs.noctalia.enable = true;
+                programs.noctalia.settings = {
+                    wallpaper.enabled = false;
+                    shell = {
+                        font = "JetBrainsMono Nerd Font";
+                        settings_show_advanced = true;
+                        actions = [
+                            { action = "lock"; command = "${pkgs.swaylock}/bin/swaylock"; }
+                            { action = "suspend"; command = "systemctl suspend"; }
+                            { action = "shutdown"; command = "systemctl poweroff"; }
+                            { action = "logout"; command = "uwsm stop"; }
+                            { action = "reboot"; command = "systemctl reboot"; }
+                        ];
+                    };
+                    theme = {
+                        mode = "dark";
+                        source = "builtin";
+                        builtin = "Catppuccin";
+                    };
+                };
+
+                home.packages = with pkgs; [
+                    neovim
+                    git
+                    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
+                ];
+            };
+        };
     };
 }
