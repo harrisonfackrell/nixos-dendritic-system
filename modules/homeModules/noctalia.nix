@@ -23,10 +23,8 @@
                 center = [ "clock-12h" ];
             };
             shell = {
-                font = "JetBrainsMono Nerd Font";
-                settings_show_advanced = true;
                 session.actions = [
-                    { action = "lock"; command = "${pkgs.swaylock}/bin/swaylock"; }
+                    { action = "lock"; command = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"; }
                     { action = "suspend"; command = "systemctl suspend"; }
                     { action = "shutdown"; command = "systemctl poweroff"; }
                     { action = "logout"; command = "uwsm stop"; }
@@ -36,8 +34,6 @@
         };
 
         home.packages = with pkgs; [
-            neovim
-            git
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
     };

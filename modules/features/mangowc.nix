@@ -38,6 +38,7 @@
             pkgs.kdePackages.breeze-icons
             pkgs.kdePackages.ark
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
+            inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
     };
 
