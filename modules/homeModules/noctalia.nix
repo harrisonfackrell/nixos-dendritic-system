@@ -25,10 +25,10 @@
             shell = {
                 session.actions = [
                     { action = "lock"; command = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"; }
-                    { action = "suspend"; command = "systemctl suspend"; }
-                    { action = "shutdown"; command = "systemctl poweroff"; }
+                    { action = "suspend"; lock_before_suspend = false; command = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock} & noctalia msg session suspend"; }
+                    { action = "shutdown"; }
                     { action = "logout"; command = "uwsm stop"; }
-                    { action = "reboot"; command = "systemctl reboot"; }
+                    { action = "reboot"; }
                 ];
             };
         };
