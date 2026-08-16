@@ -5,7 +5,6 @@
             self.nixosModules.mangowc
             self.nixosModules.firefox
             self.nixosModules.plymouth
-            inputs.stylix.nixosModules.stylix
             inputs.home-manager.nixosModules.home-manager
         ];
 
