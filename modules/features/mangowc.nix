@@ -1,5 +1,12 @@
 { self, inputs, ... }: {
     flake.nixosModules.mangowc = { pkgs, lib, ... }: {
+        imports = [
+            inputs.noctalia.nixosModules.default
+        ];
+        programs.noctalia = {
+            enable = true;
+            recommendedServices.enable = true;
+        };
         programs.uwsm = {
             enable = true; 
             waylandCompositors = {
@@ -21,11 +28,6 @@
             enable = true;
             pulse.enable = true;
         };
-        services.tlp = {
-            enable = true;
-            pd.enable = true;
-        };
-        services.power-profiles-daemon.enable = lib.mkForce false;
         environment.systemPackages = [
             pkgs.brightnessctl
             pkgs.playerctl
