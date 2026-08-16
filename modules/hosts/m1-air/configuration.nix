@@ -105,7 +105,7 @@
             extraSpecialArgs = { inherit self inputs; };
             users.obiwanshinobi = {
                 imports = [
-                    self.homeManagerModules.m1AirObiwanshinobi
+                    self.homeModules.noctalia
                 ];
                 home.stateVersion = config.system.stateVersion;
             };

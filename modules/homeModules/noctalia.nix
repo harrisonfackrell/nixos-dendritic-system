@@ -1,5 +1,5 @@
 { self, inputs, ... }: {
-    flake.homeManagerModules.m1AirObiwanshinobi = { config, pkgs, lib, ... }: {
+    flake.homeModules.noctalia = { config, pkgs, lib, ... }: {
         imports = [
             inputs.noctalia.homeModules.default
             inputs.stylix.homeModules.stylix
