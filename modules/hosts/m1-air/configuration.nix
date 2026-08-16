@@ -106,6 +106,7 @@
             users.obiwanshinobi = {
                 imports = [
                     self.homeModules.noctalia
+                    self.homeModules.stylix-breeze-dark
                 ];
                 home.stateVersion = config.system.stateVersion;
             };
