@@ -66,7 +66,7 @@
           models = {
             # Roleplaying
             "MeroMero Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 --cache-ram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.9;
@@ -90,7 +90,7 @@
               };
             };
             "GlisteningGem Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 --cache-ram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 1 -cram 8192 -ctv q8_0 -ctk q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.8;
@@ -122,7 +122,7 @@
             };
             # General Productivity
             "Gemma4 Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 --cache-ram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${gemma4-sparse} --mmproj ${gemma4-sparse-mmproj} --spec-type draft-mtp -md ${gemma4-sparse-mtp}";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${gemma4-sparse} --mmproj ${gemma4-sparse-mmproj} --spec-type draft-mtp -md ${gemma4-sparse-mtp}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -147,7 +147,7 @@
               };
             };
             "Gemma4 Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 --cache-ram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${gemma4-dense} --mmproj ${gemma4-dense-mmproj} --spec-type draft-mtp -md ${gemma4-dense-mtp}";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${gemma4-dense} --mmproj ${gemma4-dense-mmproj} --spec-type draft-mtp -md ${gemma4-dense-mtp}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -173,7 +173,7 @@
             };
             # Programming
             "Qwen3.8 Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 --cache-ram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen38-dense} --mmproj ${qwen38-dense-mmproj} --spec-type draft-mtp --spec-draft-n-max 3";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen38-dense} --mmproj ${qwen38-dense-mmproj} --spec-type draft-mtp --spec-draft-n-max 3";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -217,7 +217,7 @@
               };
             };
             "Qwen3.6 Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 --cache-ram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen36-sparse} --mmproj ${qwen36-sparse-mmproj} --spec-type draft-mtp --spec-draft-n-max 3";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen36-sparse} --mmproj ${qwen36-sparse-mmproj} --spec-type draft-mtp --spec-draft-n-max 3";
               filters = {
                 setParams = {
                   temperature = 0.7;
