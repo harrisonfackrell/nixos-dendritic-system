@@ -90,7 +90,7 @@
               };
             };
             "GlisteningGem Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 1 -cram 8192 -ctv q8_0 -ctk q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 4 -cram 8192 -ctv q8_0 -ctk q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.8;
