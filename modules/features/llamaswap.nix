@@ -66,7 +66,7 @@
           models = {
             # Roleplaying
             "MeroMero Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit on --cache-ram 0 --fit-target 0 --swa-full --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit on --cache-ram 1024 --ctx-checkpoints 8 --fit-target 0 --swa-full --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.9;
