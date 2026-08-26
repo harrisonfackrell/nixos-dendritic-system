@@ -69,9 +69,8 @@
               cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit on --cache-ram 0 --fit-target 0 --swa-full --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
-                  temperature = 1.0;
-                  top_p = 0.95;
-                  top_k = 64;
+                  temperature = 0.9;
+                  min_p = 0.05;
                   chat_template_kwargs = {
                     enable_thinking = false;
                   };
