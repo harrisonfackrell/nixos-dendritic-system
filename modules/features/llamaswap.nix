@@ -15,9 +15,9 @@
             url = "https://huggingface.co/zerofata/G4-MeroMero-26B-A4B-gguf/resolve/main/G4-MeroMero-26B-A4B-Q6_K.gguf";
             sha256 = "d507f52a54b21fd3b3a0579a7154be4a9ea77e4ee01b5f6eaaff287e863f48e9";
           };
-          glisteninggem-dense = pkgs.fetchurl {
-            url = "https://huggingface.co/zerofata/Glistening-Gem-31B-v2.0-gguf/resolve/main/Glistening-Gem-31B-v2.0-Q6_K.gguf";
-            sha256 = "4908baa9010897ddd76be83f12dc481e2e56d81b7a3581ce28dec021bce91eee";
+          artemis-dense = pkgs.fetchurl {
+            url = "https://huggingface.co/bartowski/TheDrummer_Artemis-31B-v1.1-GGUF/resolve/main/TheDrummer_Artemis-31B-v1.1-Q6_K_L.gguf";
+            sha256 = "08ee8eb4159bab051c1d40fa78ba94360a110ee07fcc936f3d3a6e2525027f6e";
           };
           # General Productivity
           gemma4-sparse = pkgs.fetchurl {
@@ -47,7 +47,7 @@
           # Programming
           qwen38-dense = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q5_K_XL.gguf";
-            sha256 = "176a6a3f034e9cdc447c10cd00329fc9b31002e6589b9295f2ad4f1eefe0f6ab";
+            sha256 = "8601193d3d5760c37fb8ce1b43afebc69df5fb24e1fbc5a547c32e2200305276";
           };
           qwen38-dense-mmproj = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-BF16.gguf";
@@ -90,8 +90,8 @@
                 };
               };
             };
-            "GlisteningGem Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu -b 8192 --port $\{PORT\} --fit-target 0 --cache-ram 0 --ctx-checkpoints 0 --jinja -m ${glisteninggem-dense} --mmproj ${gemma4-dense-mmproj}";
+            "Artemis Dense" = {
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 512 --ctx-checkpoints 16 --jinja -m ${artemis-dense} --mmproj ${gemma4-dense-mmproj}";
               filters = {
                 setParams = {
                   temperature = 1.0;
@@ -142,7 +142,7 @@
               };
             };
             "Gemma4 Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 0 --swa-full --jinja -m ${gemma4-dense} --mmproj ${gemma4-dense-mmproj} --spec-type draft-mtp -md ${gemma4-dense-mtp}";
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 512 --jinja -m ${gemma4-dense} --mmproj ${gemma4-dense-mmproj} --spec-type draft-mtp -md ${gemma4-dense-mtp}";
               filters = {
                 setParams = {
                   temperature = 1.0;
