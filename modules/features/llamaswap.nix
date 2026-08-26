@@ -15,9 +15,9 @@
             url = "https://huggingface.co/zerofata/G4-MeroMero-26B-A4B-gguf/resolve/main/G4-MeroMero-26B-A4B-Q6_K.gguf";
             sha256 = "d507f52a54b21fd3b3a0579a7154be4a9ea77e4ee01b5f6eaaff287e863f48e9";
           };
-          artemis-dense = pkgs.fetchurl {
-            url = "https://huggingface.co/bartowski/TheDrummer_Artemis-31B-v1.1-GGUF/resolve/main/TheDrummer_Artemis-31B-v1.1-Q6_K_L.gguf";
-            sha256 = "08ee8eb4159bab051c1d40fa78ba94360a110ee07fcc936f3d3a6e2525027f6e";
+          glistening-gem-dense = pkgs.fetchurl {
+            url = "https://huggingface.co/mradermacher/Glistening-Gem-31B-v2.1-i1-GGUF/resolve/main/Glistening-Gem-31B-v2.1.i1-Q6_K.gguf";
+            sha256 = "a3b3c66e333021e387d52a62111deec2e617df6f7e9f3384b7ac7057abd83332";
           };
           # General Productivity
           gemma4-sparse = pkgs.fetchurl {
@@ -90,13 +90,19 @@
                 };
               };
             };
-            "Artemis Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 512 --ctx-checkpoints 16 --swa-full --jinja -m ${artemis-dense} --mmproj ${gemma4-dense-mmproj}";
+            "GlisteningGem Dense" = {
+              cmd = "${llama-server} --no-ui -np 1 -kvu --port $\{PORT\} --fit-target 0 --cache-ram 512 --ctx-checkpoints 16 --swa-full --jinja -m ${glistening-gem-dense}";
               filters = {
                 setParams = {
-                  temperature = 1.0;
-                  top_p = 0.95;
-                  top_k = 64;
+                  temperature = 0.8;
+                  min_p = 0.1;
+                  adaptive_target = 0.6;
+                  adaptive_decay = 0.75;
+                  dry_multiplier = 0.8;
+                  dry_base = 1.8;
+                  dry_allowed_length = 6;
+                  # adaptive-p is not in the default chain; must be listed explicitly to activate it
+                  samplers = [ "penalties" "dry" "top_n_sigma" "top_k" "typ_p" "top_p" "min_p" "xtc" "temperature" "adaptive_p" ];
                   chat_template_kwargs = {
                     enable_thinking = false;
                   };
