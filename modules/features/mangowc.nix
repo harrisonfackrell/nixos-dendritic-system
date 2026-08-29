@@ -106,6 +106,7 @@
                     "SUPER+SHIFT,p,spawn,noctalia msg panel-toggle session"
                     "SUPER,b,spawn,noctalia msg panel-toggle control-center power"
                     "SUPER,c,spawn,noctalia msg panel-toggle control-center home"
+                    "SUPER,v,spawn,noctalia msg panel-toggle control-center audio"
                 ];
                 gesturebind = [
                     "none,left,3,viewtoleft"
