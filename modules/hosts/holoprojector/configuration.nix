@@ -14,6 +14,7 @@
         home-manager = {
             useUserPackages = true;
             extraSpecialArgs = { inherit self inputs; };
+            backupFileExtension = ".hmbak";
             users.obiwanshinobi = {
                 imports = [
                     self.homeModules.noctalia
