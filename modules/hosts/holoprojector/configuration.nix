@@ -19,7 +19,24 @@
                     self.homeModules.noctalia
                     self.homeModules.stylix-breeze-dark
                 ];
-                home.stateVersion = config.system.stateVersion;
+                home = {
+                    packages = [
+                        neovim
+                        wget
+                        vscodium
+                        git
+                        gimp
+                        libreoffice
+                        nodejs
+                        sqlite
+                        python3
+                        gnumake
+                        gcc
+                        vlc
+                        lsof
+                    ];
+                    stateVersion = config.system.stateVersion;
+                };
             };
         };
 
