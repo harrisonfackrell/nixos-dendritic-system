@@ -20,7 +20,7 @@
                     self.homeModules.stylix-breeze-dark
                 ];
                 home = {
-                    packages = [
+                    packages = with pkgs; [
                         neovim
                         wget
                         vscodium
@@ -34,6 +34,7 @@
                         gcc
                         vlc
                         lsof
+                        discord
                     ];
                     stateVersion = config.system.stateVersion;
                 };
