@@ -8,6 +8,9 @@
             inputs.home-manager.nixosModules.home-manager
         ];
 
+        nix.settings.experimental-features = [ "nix-command" "flakes" ];
+        boot.kernelPackages = pkgs.linuxPackages_latest;
+
         home-manager = {
             useUserPackages = true;
             extraSpecialArgs = { inherit self inputs; };
@@ -48,7 +51,7 @@
         nixpkgs.config.allowUnfree = true;
 
         networking = {
-            hostName = "nixos";
+            hostName = "holoprojector";
             networkmanager = {
                 enable = true;
                 wifi.backend = "iwd";
