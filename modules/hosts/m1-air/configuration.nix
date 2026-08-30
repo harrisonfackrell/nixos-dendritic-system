@@ -33,6 +33,7 @@
                         gcc
                         vlc
                         lsof
+                        moonlight
                     ];
                     stateVersion = config.system.stateVersion;
                 };
