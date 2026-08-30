@@ -33,7 +33,6 @@
                         gcc
                         vlc
                         lsof
-                        moonlight-qt
                     ];
                     stateVersion = config.system.stateVersion;
                 };

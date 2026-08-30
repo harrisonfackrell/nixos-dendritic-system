@@ -36,6 +36,7 @@
                         vlc
                         lsof
                         discord
+                        moonlight-qt
                     ];
                     stateVersion = config.system.stateVersion;
                 };
