@@ -24,5 +24,11 @@
 
         nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
         hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+        #Needed for 5GHz with MT7922 chipset
+        hardware.wirelessRegulatoryDatabase = true;
+        boot.extraModprobeConfig = ''
+            options cfg80211 ieee80211_regdom="US"
+        '';
     };
 }
