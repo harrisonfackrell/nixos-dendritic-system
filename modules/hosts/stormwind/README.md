@@ -10,14 +10,14 @@ fork (`Playerbot` branch) with
 | Piece | Where |
 |---|---|
 | Servers (authserver, worldserver, dbimport) | built from GitHub via flake inputs, in the Nix store |
+| Server configs (generated, immutable) | inside the built package (`…/etc/*.conf`) |
 | MySQL 8.4 with `acore_auth`, `acore_world`, `acore_characters`, `acore_playerbots` | `services.mysql` (localhost only) |
 | systemd units | `azerothcore-dbimport`, `azerothcore-authserver`, `azerothcore-worldserver` |
-| Config files (operator-owned, never clobbered by rebuilds) | `/var/lib/azerothcore/etc/*.conf` |
 | Logs | `/var/lib/azerothcore/logs/` |
 | **Game client data (you must copy this manually)** | `/var/lib/azerothcore/data/` |
 
-Firewall ports when `services.azerothcore.openFirewall = true`:
-3724 (auth), 8085 (world), 8089 (SOAP).
+Firewall ports when `services.azerothcore.openFirewall = true` (set in
+`configuration.nix`): 3724 (auth), 8085 (world).
 
 ## First-time setup
 
@@ -25,27 +25,19 @@ Firewall ports when `services.azerothcore.openFirewall = true`:
 
    ```bash
    nixos-rebuild build --flake .#stormwind
-   # then copy result to the LXC and unpack, or use your usual
-   # deployment mechanism (rsync of /nix/store + nix-env / switch-to-configuration)
+   # then deploy the result to the LXC with your usual mechanism
    ```
 
-   The first build compiles AzerothCore from source (~1–2 GB of store,
-   30–60 min). This is expected and happens only once per flake revision.
+   The first build compiles AzerothCore from source (~1 GB of store,
+   30–60 min). This is expected and happens once per flake revision.
 
 2. **Copy WoW WotLK client data** into `/var/lib/azerothcore/data/`.
-   From a legitimate *WoW 3.3.5 (WotLK)* client install you need:
-
-   ```
-   Interface/   -> /var/lib/azerothcore/data/dbc/... (see below)
-   maps/        -> /var/lib/azerothcore/data/maps/
-   wmo/ vartmp  -> used to generate vmaps (optional)
-   ```
-
-   The worldserver expects the extracted AzerothCore data layout:
-   `dbc/`, `maps/`, `vmaps/`, `mmaps/` under the configured `DataDir`
-   (default `/var/lib/azerothcore/data`). The easiest way to obtain it is
-   AzerothCore's `map_extractor` tool or a pre-extracted data archive;
-   place the result so that `DataDir` points at it.
+   The worldserver expects the AzerothCore data layout — `dbc/`, `maps/`,
+   `vmaps/`, `mmaps/` — under the configured `DataDir`
+   (default `/var/lib/azerothcore/data`). Generate it from a legitimate
+   *WoW 3.3.5 (WotLK)* client install using AzerothCore's data tooling
+   (e.g. `map_extractor` / the client-data import in the upstream
+   wiki) and place the result accordingly.
 
 3. **Start the services**:
 
@@ -57,25 +49,31 @@ Firewall ports when `services.azerothcore.openFirewall = true`:
    ```
 
    `dbimport` seeds auth/world/characters from the SQL in the Nix store.
-   The `acore_playerbots` database is created automatically by the
-   worldserver on first boot (the playerbots module runs its own DB
-   updater, reading `modules/mod-playerbots/data/sql` from the store).
+   The `acore_playerbots` database is populated automatically by the
+   worldserver on first boot — the playerbots module runs its own DB
+   updater, reading `modules/mod-playerbots/data/sql` from the store.
 
 ## Day-2 notes
 
-- **Tuning the server**: edit `/var/lib/azerothcore/etc/worldserver.conf`
-  (or `extraWorldConf` / `extraOverrides` in this host's
-  `configuration.nix` — the NixOS-managed block is appended once and
-  marker-guarded, so hand edits survive rebuilds).
-- **Updating AzerothCore / playerbots**: `nix flake update azerothcore
-  playerbots` in the flake, then rebuild. The worldserver's DB updater
-  applies any pending SQL automatically on next start.
-- **Creating the first account**: after first worldserver start,
-  `mysql -u acore -pacore acore_auth` and `CREATE TABLE` if needed, or
-  use the in-game/DB flow described in the AzerothCore wiki
-  (account + realmlist entries).
+- **Tuning the server**: all config is declarative. Set
+  `services.azerothcore.extraWorldConf` (raw lines) or
+  `extraOverrides` (attrset of key → value) in
+  `configuration.nix`, e.g.:
+
+  ```nix
+  services.azerothcore.extraOverrides = {
+      GM.StartLevel = "50";
+  };
+  ```
+
+  The generated configs live in the Nix store and are rebuilt with the
+  system, so there are no operator-owned conf files to drift.
+- **Updating AzerothCore / playerbots**:
+  `nix flake update azerothcore playerbots` in this flake, then rebuild.
+  The DB updaters apply any pending SQL automatically on next start.
+- **Creating the first account**: after the worldserver's first start,
+  follow the AzerothCore wiki ("Accounts" — create an auth account and a
+  realmlist entry), e.g. via `mysql -u acore -pacore acore_auth`.
 - **Changing the DB password**: set `services.azerothcore.mysqlPassword`
-  here and drop the existing databases (or manually `ALTER USER`) — the
-  password is baked into the materialised `.conf` files on first
-  creation only, so after a password change delete the `*.conf` files in
-  `/var/lib/azerothcore/etc` once to regenerate them.
+  here and rebuild — the new value is baked into the generated configs
+  and the `ensureUsers` entry (existing DB users are updated by NixOS).

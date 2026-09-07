@@ -33,12 +33,10 @@
         services.azerothcore = {
             enable = true;
             enablePlayerbots = true;
-            # Expose auth (3724), world (8085) and SOAP (8089) to the LAN
+            # Expose auth (3724) and world (8085) to the LAN
             openFirewall = true;
             # Example of custom tuning:
-            # extraWorldConf = [
-            #     "GM.StartLevel = 50"
-            # ];
+            # extraWorldConf = "GM.StartLevel = 50\nMaxPlayers = 200";
         };
 
         system.stateVersion = "25.05";
