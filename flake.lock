@@ -21,6 +21,23 @@
         "type": "github"
       }
     },
+    "azerothcore": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788537829,
+        "narHash": "sha256-EhYMkTfuGkPCesK7j3IPIk0Upvmzhmr1OBe2WIb8qBo=",
+        "owner": "mod-playerbots",
+        "repo": "azerothcore-wotlk",
+        "rev": "413bea61a85e20d9caef7d66fc601a661fdddd9d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mod-playerbots",
+        "ref": "Playerbot",
+        "repo": "azerothcore-wotlk",
+        "type": "github"
+      }
+    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -305,14 +322,32 @@
         "type": "github"
       }
     },
+    "playerbots": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788537698,
+        "narHash": "sha256-fvkBWGjIX0zhoRmtLBP+p00dcPRQ3Vw9htho23fo5k4=",
+        "ref": "refs/heads/master",
+        "rev": "b949b50bfcdd4fab937781bac2d7765e39330e4b",
+        "revCount": 2757,
+        "type": "git",
+        "url": "https://github.com/mod-playerbots/mod-playerbots"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/mod-playerbots/mod-playerbots"
+      }
+    },
     "root": {
       "inputs": {
         "apple-silicon": "apple-silicon",
+        "azerothcore": "azerothcore",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
+        "playerbots": "playerbots",
         "stylix": "stylix",
         "wrapper-modules": "wrapper-modules"
       }
