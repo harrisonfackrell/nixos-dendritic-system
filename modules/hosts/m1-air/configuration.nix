@@ -33,6 +33,7 @@
                         gcc
                         vlc
                         lsof
+                        jellyfin-desktop
                     ];
                     stateVersion = config.system.stateVersion;
                 };

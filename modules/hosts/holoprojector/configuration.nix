@@ -37,6 +37,7 @@
                         lsof
                         discord
                         moonlight-qt
+                        jellyfin-desktop
                     ];
                     stateVersion = config.system.stateVersion;
                 };
