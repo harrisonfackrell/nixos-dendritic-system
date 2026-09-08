@@ -173,7 +173,11 @@
             };
             # Programming
             "Qwen3.8 Dense" = {
+<<<<<<< HEAD
               cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen38-dense} --mmproj ${qwen38-dense-mmproj} --spec-type draft-mtp";
+=======
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 -ctv q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen38-dense} --mmproj ${qwen38-dense-mmproj} --spec-type draft-mtp --spec-draft-n-max 3 --reasoning-preserve";
+>>>>>>> a9f7a493952633b5194f7873034e8e7432d471e1
               filters = {
                 setParams = {
                   temperature = 1.0;
