@@ -36,11 +36,7 @@
             pkgs.pavucontrol
             pkgs.firefox
             pkgs.pcmanfm-qt
-            pkgs.ashell
-            pkgs.kdePackages.dolphin
-            pkgs.kdePackages.breeze
-            pkgs.kdePackages.breeze-icons
-            pkgs.kdePackages.ark
+            pkgs.file-roller
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
