@@ -55,19 +55,33 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
 
 ## Day-2 notes
 
-- **Tuning the server**: all config is declarative. Set
-  `services.azerothcore.extraWorldConf` (raw lines) or
-  `extraOverrides` (attrset of key → value) in
-  `configuration.nix`, e.g.:
+- **Tuning the server**: all config is declarative. The contents of each
+  `.conf` file are exposed as an attribute-set option, so you can override
+  any single key (or add new ones) without disturbing the module's defaults:
+
+  | Option | File written |
+  |---|---|
+  | `services.azerothcore.authserverConfig` | `etc/authserver.conf` |
+  | `services.azerothcore.worldserverConfig` | `etc/worldserver.conf` |
+  | `services.azerothcore.dbimportConfig` | `etc/dbimport.conf` |
+  | `services.azerothcore.playerbotsConfig` | `etc/modules/playerbots.conf` |
+
+  Each is a set of `key = value` pairs (values are strings; numbers are
+  stringified). AzerothCore keys containing a dot (e.g. `GM.StartLevel`)
+  must be quoted in Nix. e.g.:
 
   ```nix
-  services.azerothcore.extraOverrides = {
-      GM.StartLevel = "50";
+  services.azerothcore.worldserverConfig = {
+      MaxPlayers = "200";
+      "GM.StartLevel" = "50";   # override/add a single key
   };
   ```
 
-  The generated configs live in the Nix store and are rebuilt with the
-  system, so there are no operator-owned conf files to drift.
+  Keys you don't list keep their module defaults (RealmServerPort,
+  WorldServerPort, DataDir, the `*DatabaseInfo` connection strings,
+  LogsDir, TempDir, MySQLExecutable, SourceDirectory). The generated
+  configs live in the Nix store and are rebuilt with the system, so there
+  are no operator-owned conf files to drift.
 - **Updating AzerothCore / playerbots**:
   `nix flake update azerothcore playerbots` in this flake, then rebuild.
   The DB updaters apply any pending SQL automatically on next start.
