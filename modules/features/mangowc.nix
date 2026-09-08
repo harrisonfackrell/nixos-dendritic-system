@@ -104,6 +104,7 @@
                     "SUPER+ALT,t,setlayout,tile"
                     "SUPER+ALT,b,setlayout,vertical_tile"
                     "SUPER,x,spawn,noctalia msg bar-toggle"
+                    "SUPER,z,spawn,noctalia msg panel-toggle clipboard"
                     "SUPER+SHIFT,l,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"
                     "SUPER+SHIFT,p,spawn,noctalia msg panel-toggle session"
                     "SUPER,b,spawn,noctalia msg panel-toggle control-center power"
