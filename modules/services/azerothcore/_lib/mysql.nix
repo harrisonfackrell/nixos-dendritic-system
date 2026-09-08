@@ -36,7 +36,10 @@ in
             enable = true;
             package = pkgs.mysql84;
             settings = {
-                bind-address = "127.0.0.1";
+                # nixpkgs' mysql `settings` is an INI type: every key must
+                # live inside a section, so bind-address goes under [mysqld]
+                # (a top-level key is rejected).
+                mysqld.bind-address = "127.0.0.1";
                 mysqld.max_connections = 300;
             };
             ensureDatabases = allDatabases;

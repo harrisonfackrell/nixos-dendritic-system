@@ -5,24 +5,55 @@
 # Parameters:
 # - pkgs: the nixpkgs package set (build inputs come from here).
 # - src: a source tree following the AzerothCore layout (top-level
-#   CMakeLists.txt plus src/). It may contain a modules/ directory with one
-#   subdirectory per module, each holding its own src/ subdirectory; the
-#   core's CMake auto-discovers them (file(GLOB) in
-#   src/cmake/macros/ConfigureModules.cmake) and bakes the module list,
-#   config-file locations and SQL-update paths into the binaries. The tree
-#   must be a persistent store path: the runtime SourceDirectory lookups
-#   (SQL updaters, module conf loading) resolve against it.
+#   CMakeLists.txt plus src/).
 # - version: informational version string for the store path name.
+# - modules: optional attrset mapping a module's directory name (the
+#   modules/<name>/ it is merged into in the source tree) to the module's
+#   source tree (a store path or derivation whose top level is the module,
+#   i.e. contains a src/ subdirectory). Defaults to { } (core only).
 # - configFiles: list of { name, file } pairs installed relative to $out
 #   (name = "etc/worldserver.conf"), where file is a derivation providing
 #   the file content (typically pkgs.writeText). The core reads
 #   <prefix>/etc/<name>.conf (CONF_DIR is baked in by its CMake) and, for
 #   each compiled-in module, <prefix>/etc/modules/<module>.conf.
 #
+# The module merging happens in the build itself (postUnpack): each module
+# is copied into $sourceRoot/modules/<name>/ before the configure phase,
+# because the core's CMake auto-discovers modules/* (a file(GLOB) in
+# src/cmake/macros/ConfigureModules.cmake) at configure time and bakes the
+# module list, config-file locations and SQL-update paths into the
+# binaries. Each module must contain a src/ subdirectory (the AzerothCore
+# module layout); the build fails if it does not.
+#
+# The merged tree (core + modules) is installed to $out/source in
+# postInstall: the runtime SourceDirectory lookups (worldserver
+# auth/world/characters updaters, the dbimport tool, and modules' own DB
+# updaters) all resolve SQL files relative to it, so it must persist in
+# the store. The NixOS module symlinks a fixed runtime path
+# (/var/lib/azerothcore/source) to it and points the generated conf
+# files' SourceDirectory there - the conf files are build inputs of this
+# derivation, so they cannot reference its own (not yet known) store path.
+#
 # The AzerothCore core is GPLv3+; check each compiled-in module's own
 # license separately.
-{ pkgs, src, version ? "17.0.0", configFiles ? [ ] }:
+{ pkgs, src, version ? "17.0.0", modules ? { }, configFiles ? [ ] }:
 with pkgs;
+let
+    # The shell script fragment that copies the requested modules into
+    # $sourceRoot/modules/<name>/ (merged in postUnpack, before the
+    # configure phase).
+    mergeModulesScript = lib.concatStringsSep "\n"
+        (lib.mapAttrsToList
+            (name: modSrc: ''
+                mkdir -p $sourceRoot/modules
+                cp -r ${modSrc} $sourceRoot/modules/${name}
+                test -d $sourceRoot/modules/${name}/src || {
+                    echo "azerothcore module '${name}' is missing a src/ subdirectory" >&2
+                    exit 1
+                }
+            '')
+            modules);
+in
 stdenv.mkDerivation (finalAttrs: {
     pname = "azerothcore-wotlk";
     inherit version src;
@@ -44,6 +75,16 @@ stdenv.mkDerivation (finalAttrs: {
         zlib
     ];
 
+    # Sanity-check the core tree and merge the requested modules in before
+    # the configure phase: the module list (plus each module's conf and
+    # SQL-update paths) is discovered by file(GLOB) at configure time, so
+    # the modules must already sit in $sourceRoot/modules/<name>/ then.
+    postUnpack = ''
+        test -d $sourceRoot/src
+        test -f $sourceRoot/CMakeLists.txt
+        ${mergeModulesScript}
+    '';
+
     # String-valued options (CACHE STRING in conf/dist/config.cmake) are
     # passed as plain -D strings; lib.cmakeBool only works for booleans.
     cmakeFlags = [
@@ -59,12 +100,17 @@ stdenv.mkDerivation (finalAttrs: {
     cmakeBuildType = "RelWithDebInfo"; # debug symbols help with crash triage
 
     # Install the generated config files next to the binaries
-    # (CONF_DIR == <prefix>/etc).
-    postInstall = lib.concatMapStrings (f: ''
-        install -Dm644 ${f.file} $out/${f.name}
-    '') configFiles;
+    # (CONF_DIR == <prefix>/etc), then persist the merged source tree for
+    # the runtime SourceDirectory SQL lookups (see file header).
+    postInstall =
+        lib.concatMapStrings (f: ''
+            install -Dm644 ${f.file} $out/${f.name}
+        '') configFiles
+        + ''
+            cp -r $sourceRoot $out/source
+        '';
 
-    passthru = { inherit src; };
+    passthru = { inherit src modules; };
 
     meta = with lib; {
         description = "AzerothCore World of Warcraft: Wrath of the Lich King server with statically compiled modules";

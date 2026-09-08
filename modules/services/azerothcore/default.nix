@@ -72,29 +72,11 @@
         logsDir = "/var/lib/azerothcore/logs";
         tmpDir = "/var/lib/azerothcore";
 
-        # ---------------------------------------------------------------------
-        # Merge the AzerothCore source tree with the requested modules the same
-        # way the upstream quick-start does it:
-        #   git clone <module> azerothcore-wotlk/modules/<module>
-        # The core's CMake auto-discovers modules/* (a directory that contains a
-        # src/ subdir) and bakes the module list + config list + SQL-update paths
-        # into the binaries. The result is a store path that persists, so the
-        # runtime lookups below keep working.
-        # ---------------------------------------------------------------------
-        mergedSource = pkgs.runCommand "azerothcore-wotlk-src" { } ''
-            cp -r ${cfg.source.src} $out
-            # Sanity-check that this looks like an AzerothCore source tree.
-            test -d $out/src
-            test -f $out/CMakeLists.txt
-            ${lib.concatMapStrings (name: ''
-                mkdir -p $out/modules
-                cp -r ${cfg.modules.${name}.src} $out/modules/${name}
-                test -d $out/modules/${name}/src || {
-                    echo "azerothcore module '${name}' is missing a src/ subdirectory" >&2
-                    exit 1
-                }
-            '') (builtins.attrNames cfg.modules)}
-        '';
+        # Fixed runtime path pointing at the merged source tree (core +
+        # modules) installed by the package into <prefix>/source. See the
+        # SourceDirectory notes in mkConfDefaults and the
+        # azerothcore-source oneshot in _lib/services.nix.
+        sourceDir = "${tmpDir}/source";
 
         # ---------------------------------------------------------------------
         # Default contents of each core config file.
@@ -111,12 +93,17 @@
         # that contains only the keys we care about; the rest of the server
         # behaviour falls back to the compiled-in defaults.
         #
-        # SourceDirectory points at the source tree that was compiled into the
-        # package (the store path of `mergedSource`). The runtime SQL base/update
-        # lookups (worldserver auth/world/characters updaters, the dbimport tool,
-        # and modules' own DB updaters) all resolve relative to this path, so it
-        # must persist in the store - which it does, because the systemd units
-        # reference the package and thus GC-protect it.
+        # SourceDirectory points at a *fixed* runtime path
+        # (/var/lib/azerothcore/source) that the azerothcore-source oneshot
+        # symlinks to the merged source tree the package installs at
+        # <prefix>/source (core + modules, merged in the package build). The
+        # generated conf files are build *inputs* of the package, so they
+        # cannot reference the package's own store path (that would be
+        # circular); the symlink breaks the cycle. The runtime SQL
+        # base/update lookups (worldserver auth/world/characters updaters,
+        # the dbimport tool, and modules' own DB updaters) all resolve
+        # relative to this path. The tree persists in the store because the
+        # systemd units reference the package and thus GC-protect it.
         #
         # NOTE: every value below is a plain *string*. DataDir in particular is
         # coerced with toString because `cfg.dataDir` is a lib.types.path;
@@ -131,7 +118,7 @@
                 LogsDir = logsDir;
                 TempDir = tmpDir;
                 MySQLExecutable = mysqlExe;
-                SourceDirectory = "${mergedSource}";
+                SourceDirectory = sourceDir;
             };
             worldserver = {
                 DataDir = toString cfg.dataDir;
@@ -142,7 +129,7 @@
                 LogsDir = logsDir;
                 TempDir = tmpDir;
                 MySQLExecutable = mysqlExe;
-                SourceDirectory = "${mergedSource}";
+                SourceDirectory = sourceDir;
             };
             dbimport = {
                 LoginDatabaseInfo = dbInfo "acore_auth";
@@ -151,7 +138,7 @@
                 LogsDir = logsDir;
                 TempDir = tmpDir;
                 MySQLExecutable = mysqlExe;
-                SourceDirectory = "${mergedSource}";
+                SourceDirectory = sourceDir;
             };
         };
 
@@ -193,10 +180,12 @@
             ++ (lib.mapAttrsToList moduleConfFile cfg.modules);
 
         # ---------------------------------------------------------------------
-        # Build the package with this host's source tree, version and generated
-        # config files. The private builder in _lib/package.nix pulls its build
-        # inputs (stdenv, cmake, boost, mysql84, ...) from `pkgs`; src, version
-        # and configFiles come from the options above.
+        # Build the package with this host's source tree, version, the
+        # requested modules and the generated config files. The private
+        # builder in _lib/package.nix pulls its build inputs (stdenv, cmake,
+        # boost, mysql84, ...) from `pkgs`; src, version, modules and
+        # configFiles come from the options above. Module merging happens
+        # inside the derivation (see that file).
         #
         # The units below reference this local derivation. It is *also*
         # exposed as pkgs.azerothcoreWotlk through the nixpkgs overlay in
@@ -208,13 +197,16 @@
         azerothcorePkg = (import ./_lib/package.nix) {
             inherit pkgs configFiles;
             inherit (cfg.source) src version;
+            # Directory name -> module source tree; the package copies each
+            # into $sourceRoot/modules/<name>/ before CMake configure.
+            modules = lib.mapAttrs (_: entry: entry.src) cfg.modules;
         };
 
         # These helpers are imported here (after `azerothcorePkg`, which they
         # need) and before `config`, which consumes their `.config` attrsets.
         mysqlLib = import ./_lib/mysql.nix { inherit lib pkgs cfg; };
         servicesLib = import ./_lib/services.nix {
-            inherit lib pkgs cfg azerothcorePkg;
+            inherit lib pkgs cfg azerothcorePkg sourceDir;
             mysqlInitSql = mysqlLib.mysqlInitSql;
         };
 

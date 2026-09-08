@@ -1,7 +1,7 @@
 # systemd units + firewall + convenience packages for the AzerothCore
 # module. The units run the binaries from `azerothcorePkg` (the local
 # derivation built in default.nix), so this file receives it as an argument.
-{ lib, pkgs, cfg, azerothcorePkg, mysqlInitSql }:
+{ lib, pkgs, cfg, azerothcorePkg, sourceDir, mysqlInitSql }:
 {
     config = {
         systemd.services = {
@@ -26,10 +26,29 @@
                 '';
             };
 
+            # Re-point the SourceDirectory symlink at the merged source tree
+            # shipped by the package (<prefix>/source, core + modules) on
+            # every (re)start, so a package upgrade picks up the new tree
+            # before anything resolves SQL paths against it. Idempotent and
+            # cheap; restartIfChanged re-runs it whenever the package
+            # changes.
+            azerothcore-source = {
+                description = "AzerothCore source tree symlink";
+                wantedBy = [ "multi-user.target" ];
+                restartIfChanged = true;
+                serviceConfig = {
+                    Type = "oneshot";
+                };
+                path = [ pkgs.bash pkgs.coreutils ];
+                script = ''
+                    ln -sfn ${azerothcorePkg}/source ${sourceDir}
+                '';
+            };
+
             azerothcore-dbimport = {
                 description = "AzerothCore database import (auth/world/characters)";
                 wantedBy = [ "multi-user.target" ];
-                after = [ "network.target" "mysql.service" "azerothcore-mysql-init.service" ];
+                after = [ "network.target" "mysql.service" "azerothcore-mysql-init.service" "azerothcore-source.service" ];
                 wants = [ "mysql.service" ];
                 # Hash-based and idempotent - cheap to re-run every boot,
                 # keeps the DBs in sync with source updates.
