@@ -5,7 +5,8 @@
 # Parameters:
 # - pkgs: the nixpkgs package set (build inputs come from here).
 # - src: a source tree following the AzerothCore layout (top-level
-#   CMakeLists.txt plus src/).
+#   CMakeLists.txt plus src/). Defaults to the latest commit on
+#   azerothcore/azerothcore-wotlk master, pinned via fetchFromGitHub.
 # - version: informational version string for the store path name.
 # - modules: optional attrset mapping a module's directory name (the
 #   modules/<name>/ it is merged into in the source tree) to the module's
@@ -37,7 +38,12 @@
 #
 # The AzerothCore core is GPLv3+; check each compiled-in module's own
 # license separately.
-{ pkgs, src, version ? "17.0.0", modules ? { }, configFiles ? [ ] }:
+{ pkgs, src ? pkgs.lib.fetchFromGitHub {
+    owner = "azerothcore";
+    repo = "azerothcore-wotlk";
+    rev = "16685343110115b12e76d517f7bac15c6a97fb2a";
+    hash = "sha256-sCi8tvuQtiMRYyghfR4s9uEnFCP_XLTOY9Au1-jWcUo=";
+}, version ? "17.0.0", modules ? { }, configFiles ? [ ] }:
 with pkgs;
 let
     # The shell script fragment that copies the requested modules into
