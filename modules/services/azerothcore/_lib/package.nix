@@ -29,10 +29,11 @@
 # postInstall: the runtime SourceDirectory lookups (worldserver
 # auth/world/characters updaters, the dbimport tool, and modules' own DB
 # updaters) all resolve SQL files relative to it, so it must persist in
-# the store. The NixOS module symlinks a fixed runtime path
-# (/var/lib/azerothcore/source) to it and points the generated conf
-# files' SourceDirectory there - the conf files are build inputs of this
-# derivation, so they cannot reference its own (not yet known) store path.
+# the store. The NixOS module sets AC_SOURCE_DIRECTORY to $out/source in
+# the systemd units (AzerothCore's ConfigMgr checks AC_* environment
+# variables before the conf file for every key) - the conf files are
+# build inputs of this derivation, so they cannot reference its own
+# (not yet known) store path.
 #
 # The AzerothCore core is GPLv3+; check each compiled-in module's own
 # license separately.

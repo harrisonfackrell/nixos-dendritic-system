@@ -113,7 +113,6 @@ let
         "LogsDir"
         "TempDir"
         "MySQLExecutable"
-        "SourceDirectory"
     ];
     orderedNames = attrs:
         let

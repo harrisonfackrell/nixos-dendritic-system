@@ -1,7 +1,14 @@
 # systemd units + firewall + convenience packages for the AzerothCore
 # module. The units run the binaries from `azerothcorePkg` (the local
 # derivation built in default.nix), so this file receives it as an argument.
-{ lib, pkgs, cfg, azerothcorePkg, sourceDir, mysqlInitSql }:
+#
+# The DB-updater processes (dbimport, authserver, worldserver) resolve
+# SourceDirectory through the AC_SOURCE_DIRECTORY environment variable
+# (ConfigMgr checks env vars before the conf file, even for keys the
+# conf file does not define). It is set per unit to the merged source
+# tree the package installs at <prefix>/source, so the value is always
+# the current package's store path without a symlink or an oneshot.
+{ lib, pkgs, cfg, azerothcorePkg, mysqlInitSql }:
 {
     config = {
         systemd.services = {
@@ -26,29 +33,10 @@
                 '';
             };
 
-            # Re-point the SourceDirectory symlink at the merged source tree
-            # shipped by the package (<prefix>/source, core + modules) on
-            # every (re)start, so a package upgrade picks up the new tree
-            # before anything resolves SQL paths against it. Idempotent and
-            # cheap; restartIfChanged re-runs it whenever the package
-            # changes.
-            azerothcore-source = {
-                description = "AzerothCore source tree symlink";
-                wantedBy = [ "multi-user.target" ];
-                restartIfChanged = true;
-                serviceConfig = {
-                    Type = "oneshot";
-                };
-                path = [ pkgs.bash pkgs.coreutils ];
-                script = ''
-                    ln -sfn ${azerothcorePkg}/source ${sourceDir}
-                '';
-            };
-
             azerothcore-dbimport = {
                 description = "AzerothCore database import (auth/world/characters)";
                 wantedBy = [ "multi-user.target" ];
-                after = [ "network.target" "mysql.service" "azerothcore-mysql-init.service" "azerothcore-source.service" ];
+                after = [ "network.target" "mysql.service" "azerothcore-mysql-init.service" ];
                 wants = [ "mysql.service" ];
                 # Hash-based and idempotent - cheap to re-run every boot,
                 # keeps the DBs in sync with source updates.
@@ -62,6 +50,9 @@
                         # Databases are pre-created by NixOS; never block on
                         # an interactive prompt.
                         "AC_DISABLE_INTERACTIVE=1"
+                        # Root for the runtime SQL base/update lookups
+                        # (merged source tree shipped by the package).
+                        "AC_SOURCE_DIRECTORY=${azerothcorePkg}/source"
                     ];
                 };
                 path = [ pkgs.bash pkgs.coreutils pkgs.mysql84 ];
@@ -83,7 +74,10 @@
                 restartIfChanged = true;
                 serviceConfig = {
                     User = cfg.user;
-                    Environment = [ "AC_DISABLE_INTERACTIVE=1" ];
+                    Environment = [
+                        "AC_DISABLE_INTERACTIVE=1"
+                        "AC_SOURCE_DIRECTORY=${azerothcorePkg}/source"
+                    ];
                     Restart = "on-failure";
                     RestartSec = "5";
                 };
@@ -103,7 +97,13 @@
                     User = cfg.user;
                     # The WotLK worldserver opens thousands of map/DB handles.
                     LimitNOFILE = 16384;
-                    Environment = [ "AC_DISABLE_INTERACTIVE=1" ];
+                    Environment = [
+                        "AC_DISABLE_INTERACTIVE=1"
+                        # Also feeds the modules' DB updaters (e.g.
+                        # mod-playerbots' own data/sql under
+                        # modules/<name>/ inside the merged tree).
+                        "AC_SOURCE_DIRECTORY=${azerothcorePkg}/source"
+                    ];
                     Restart = "on-failure";
                     RestartSec = "10";
                     # First start loads all maps (and any module populates its

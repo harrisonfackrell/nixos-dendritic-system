@@ -72,12 +72,6 @@
         logsDir = "/var/lib/azerothcore/logs";
         tmpDir = "/var/lib/azerothcore";
 
-        # Fixed runtime path pointing at the merged source tree (core +
-        # modules) installed by the package into <prefix>/source. See the
-        # SourceDirectory notes in mkConfDefaults and the
-        # azerothcore-source oneshot in _lib/services.nix.
-        sourceDir = "${tmpDir}/source";
-
         # ---------------------------------------------------------------------
         # Default contents of each core config file.
         #
@@ -88,22 +82,21 @@
         # IMPORTANT: AzerothCore's Config.cpp keeps the *first* occurrence of a
         # key and skips later duplicates (Config::ParseFile -> IsDuplicateOption).
         # The shipped *.conf.dist files already define keys such as
-        # LoginDatabaseInfo / WorldServerPort / DataDir / SourceDirectory, so we
-        # cannot simply append our values. Instead we generate a complete .conf
-        # that contains only the keys we care about; the rest of the server
-        # behaviour falls back to the compiled-in defaults.
+        # LoginDatabaseInfo / WorldServerPort / DataDir, so we cannot simply
+        # append our values. Instead we generate a complete .conf that contains
+        # only the keys we care about; the rest of the server behaviour falls
+        # back to the compiled-in defaults.
         #
-        # SourceDirectory points at a *fixed* runtime path
-        # (/var/lib/azerothcore/source) that the azerothcore-source oneshot
-        # symlinks to the merged source tree the package installs at
-        # <prefix>/source (core + modules, merged in the package build). The
-        # generated conf files are build *inputs* of the package, so they
-        # cannot reference the package's own store path (that would be
-        # circular); the symlink breaks the cycle. The runtime SQL
-        # base/update lookups (worldserver auth/world/characters updaters,
-        # the dbimport tool, and modules' own DB updaters) all resolve
-        # relative to this path. The tree persists in the store because the
-        # systemd units reference the package and thus GC-protect it.
+        # SourceDirectory is deliberately NOT a conf key here: it is the one
+        # key whose value is the package's own store path (<prefix>/source,
+        # the merged source tree the SQL updaters read from), which the
+        # generated conf files cannot reference (they are build *inputs* of
+        # the package). AzerothCore's ConfigMgr checks environment variables
+        # before conf files for every key (AC_ + upper-snake-case name, even
+        # for keys the file does not define), so the units in
+        # _lib/services.nix set AC_SOURCE_DIRECTORY to
+        # <package>/source instead. The tree persists in the store because
+        # the systemd units reference the package and thus GC-protect it.
         #
         # NOTE: every value below is a plain *string*. DataDir in particular is
         # coerced with toString because `cfg.dataDir` is a lib.types.path;
@@ -118,7 +111,6 @@
                 LogsDir = logsDir;
                 TempDir = tmpDir;
                 MySQLExecutable = mysqlExe;
-                SourceDirectory = sourceDir;
             };
             worldserver = {
                 DataDir = toString cfg.dataDir;
@@ -129,7 +121,6 @@
                 LogsDir = logsDir;
                 TempDir = tmpDir;
                 MySQLExecutable = mysqlExe;
-                SourceDirectory = sourceDir;
             };
             dbimport = {
                 LoginDatabaseInfo = dbInfo "acore_auth";
@@ -138,7 +129,6 @@
                 LogsDir = logsDir;
                 TempDir = tmpDir;
                 MySQLExecutable = mysqlExe;
-                SourceDirectory = sourceDir;
             };
         };
 
@@ -206,7 +196,7 @@
         # need) and before `config`, which consumes their `.config` attrsets.
         mysqlLib = import ./_lib/mysql.nix { inherit lib pkgs cfg; };
         servicesLib = import ./_lib/services.nix {
-            inherit lib pkgs cfg azerothcorePkg sourceDir;
+            inherit lib pkgs cfg azerothcorePkg;
             mysqlInitSql = mysqlLib.mysqlInitSql;
         };
 
@@ -389,7 +379,11 @@
                     Contents of authserver.conf as a set of key/value pairs.
                     See the module source for the shipped defaults
                     (RealmServerPort, LoginDatabaseInfo, LogsDir, TempDir,
-                    MySQLExecutable, SourceDirectory).
+                    MySQLExecutable). Note: SourceDirectory is not a conf key
+                    here - it is supplied as the AC_SOURCE_DIRECTORY
+                    environment variable by the systemd unit (it is the
+                    package's own store path, which the generated conf
+                    cannot reference).
                 '';
             };
 
@@ -401,7 +395,9 @@
                     See the module source for the shipped defaults
                     (DataDir, WorldServerPort, LoginDatabaseInfo,
                     WorldDatabaseInfo, CharacterDatabaseInfo, LogsDir, TempDir,
-                    MySQLExecutable, SourceDirectory).
+                    MySQLExecutable). SourceDirectory is supplied via the
+                    AC_SOURCE_DIRECTORY environment variable; see
+                    authserverConfig for the rationale.
                 '';
             };
 
@@ -412,7 +408,9 @@
                     Contents of dbimport.conf as a set of key/value pairs. See
                     the module source for the shipped defaults
                     (LoginDatabaseInfo, WorldDatabaseInfo, CharacterDatabaseInfo,
-                    LogsDir, TempDir, MySQLExecutable, SourceDirectory).
+                    LogsDir, TempDir, MySQLExecutable). SourceDirectory is
+                    supplied via the AC_SOURCE_DIRECTORY environment
+                    variable; see authserverConfig for the rationale.
                 '';
             };
         };

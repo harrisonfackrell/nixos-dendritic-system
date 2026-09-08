@@ -116,9 +116,12 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
 
   Keys you don't list keep their module defaults (RealmServerPort,
   WorldServerPort, DataDir, the `*DatabaseInfo` connection strings,
-  LogsDir, TempDir, MySQLExecutable, SourceDirectory). The generated
-  configs live in the Nix store and are rebuilt with the system, so there
-  are no operator-owned conf files to drift.
+  LogsDir, TempDir, MySQLExecutable). `SourceDirectory` is not a conf
+  key: it is the package's own store path, so the systemd units supply
+  it as the `AC_SOURCE_DIRECTORY` environment variable instead (the
+  servers check env vars before the conf file). The generated configs
+  live in the Nix store and are rebuilt with the system, so there are
+  no operator-owned conf files to drift.
 - **Updating AzerothCore / playerbots**:
   `nix flake update azerothcore playerbots` in this flake, then rebuild.
   Alternatively point `source.src` / `modules.<name>.src` at a
