@@ -3,10 +3,9 @@
         imports = [
             inputs.stylix.homeModules.stylix
         ];
-
         stylix = {
             enable = true;
-            targets.qt.colors.enable = false;
+            targets.qt.colors.enable = true;
             targets.noctalia-shell.enable = true;
             icons = {
                 enable = true;
@@ -25,8 +24,5 @@
             }}";
             polarity = "dark";
         };
-
-        qt.style.name = lib.mkForce "adwaita-dark";
     };
-    
 }
