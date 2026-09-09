@@ -11,7 +11,7 @@ fork (`Playerbot` branch) with
 |---|---|
 | Package definition (nixpkgs-style) | `modules/services/azerothcore/_lib/package.nix` |
 | Servers (authserver, worldserver, dbimport) + modules | built from GitHub via flake inputs, in the Nix store; exposed as `pkgs.azerothcoreWotlk` |
-| Server configs (generated, immutable) | inside the built package (`…/etc/*.conf`, `…/etc/modules/*.conf`) |
+| Server configs (generated) | `/etc/azerothcore/` via `environment.etc`; the package carries symlinks to them |
 | MySQL 8.4 with `acore_auth`, `acore_world`, `acore_characters`, `acore_playerbots` | `services.mysql` (localhost only) |
 | systemd units | `azerothcore-mysql-init`, `azerothcore-dbimport`, `azerothcore-authserver`, `azerothcore-worldserver` |
 | Logs | `/var/lib/azerothcore/logs/` |
@@ -94,10 +94,10 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
 
   | Option | File written |
   |---|---|
-  | `services.azerothcore.authserverConfig` | `etc/authserver.conf` |
-  | `services.azerothcore.worldserverConfig` | `etc/worldserver.conf` |
-  | `services.azerothcore.dbimportConfig` | `etc/dbimport.conf` |
-  | `services.azerothcore.modules.<name>.config` | `etc/modules/<base>.conf` |
+  | `services.azerothcore.authserverConfig` | `/etc/azerothcore/authserver.conf` |
+  | `services.azerothcore.worldserverConfig` | `/etc/azerothcore/worldserver.conf` |
+  | `services.azerothcore.dbimportConfig` | `/etc/azerothcore/dbimport.conf` |
+  | `services.azerothcore.modules.<name>.config` | `/etc/azerothcore/modules/<base>.conf` |
 
   Each is a set of `key = value` pairs (values are strings or integers;
   numbers are stringified). Nested attribute sets flatten to the
@@ -120,8 +120,14 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
   key: it is the package's own store path, so the systemd units supply
   it as the `AC_SOURCE_DIRECTORY` environment variable instead (the
   servers check env vars before the conf file). The generated configs
-  live in the Nix store and are rebuilt with the system, so there are
-  no operator-owned conf files to drift.
+  are installed to `/etc/azerothcore/` at activation time and the
+  package holds symlinks to them, so a config edit is a cheap `writeText`
+  + activation — no AzerothCore rebuild — and the services restart
+  automatically (the units reference the conf store paths). You can
+  also edit the files under `/etc/azerothcore/` directly and
+  `systemctl restart azerothcore-worldserver` for immediate effect; a
+  later `nixos-rebuild` reconciles them back to the Nix-declared
+  content.
 - **Updating AzerothCore / playerbots**:
   `nix flake update azerothcore playerbots` in this flake, then rebuild.
   Alternatively point `source.src` / `modules.<name>.src` at a

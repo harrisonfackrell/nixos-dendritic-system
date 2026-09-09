@@ -8,7 +8,27 @@
 # conf file does not define). It is set per unit to the merged source
 # tree the package installs at <prefix>/source, so the value is always
 # the current package's store path without a symlink or an oneshot.
-{ lib, pkgs, cfg, azerothcorePkg, mysqlInitSql }:
+#
+# The package's conf paths are symlinks into /etc/azerothcore, so the
+# package no longer changes when the conf content does. Each unit
+# therefore references the store paths of the confs it reads (in its
+# startup script, below), which (a) fails the start fast if a target is
+# missing - a missing or mis-named conf would otherwise make the server
+# silently fall back to compiled-in defaults - and (b) changes the unit
+# whenever the conf changes, so restartIfChanged re-runs the oneshots
+# and restarts the servers after a conf edit.
+{ lib, pkgs, cfg, azerothcorePkg, mysqlInitSql, configFiles }:
+let
+    # The store path of the generated conf with the given
+    # /etc/azerothcore relative path (the core confs are always present).
+    confPathOf = etcRel:
+        (lib.head (lib.filter (f: f.etcRel == etcRel) configFiles)).file;
+    confGuards = etcRels:
+        lib.concatStringsSep "\n" (lib.map (rel: "test -r ${confPathOf rel}") etcRels);
+    # The worldserver reads its own conf plus every module conf.
+    moduleConfRels =
+        lib.map (f: f.etcRel) (lib.filter (f: lib.hasPrefix "modules/" f.etcRel) configFiles);
+in
 {
     config = {
         systemd.services = {
@@ -57,6 +77,11 @@
                 };
                 path = [ pkgs.bash pkgs.coreutils pkgs.mysql84 ];
                 script = ''
+                    # Fail fast if the generated conf is missing (its
+                    # in-package path is a symlink to /etc/azerothcore),
+                    # and reference the conf's store path so the unit
+                    # changes - and re-runs - when the conf does.
+                    ${confGuards [ "dbimport.conf" ]}
                     # The core installs its apps/tools to <prefix>/bin.
                     # (lib.getExe' cannot be used: the package is built
                     # from source, so its contents are unknown until it is
@@ -83,6 +108,7 @@
                 };
                 path = [ pkgs.bash pkgs.coreutils pkgs.mysql84 ];
                 script = ''
+                    ${confGuards [ "authserver.conf" ]}
                     ${azerothcorePkg}/bin/authserver
                 '';
             };
@@ -112,6 +138,9 @@
                 };
                 path = [ pkgs.bash pkgs.coreutils pkgs.mysql84 ];
                 script = ''
+                    # Own conf plus every module conf (the worldserver loads
+                    # them all at startup).
+                    ${confGuards ( [ "worldserver.conf" ] ++ moduleConfRels )}
                     ${azerothcorePkg}/bin/worldserver
                 '';
             };

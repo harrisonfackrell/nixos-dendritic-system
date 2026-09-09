@@ -134,14 +134,23 @@
 
         # ---------------------------------------------------------------------
         # Materialize every config file as a store path (pkgs.writeText) and
-        # describe where the package should install it. The core reads
-        # <prefix>/etc/<name>.conf and, per module, <prefix>/etc/modules/<base>.
-        # conf, so the install path is "etc/<name>.conf" for core files and
-        # "etc/modules/<confName>" for module files.
+        # describe where it goes. The core reads <prefix>/etc/<name>.conf and,
+        # per module, <prefix>/etc/modules/<base>.conf, so each entry carries:
+        # - name:   the install path inside the package ("etc/<name>.conf" for
+        #           core files, "etc/modules/<confName>" for module files).
+        #           The package lays a *symlink* there (see _lib/package.nix);
+        # - etcRel: the path under ${etcConfDir} where the *content* is
+        #           materialized via environment.etc, and the symlink's target.
+        # Keeping the content out of the package's build inputs is what lets
+        # a conf edit avoid the ~30-60 min CMake rebuild: only the writeText
+        # and the nixos activation re-run. The units embed the store paths
+        # (see _lib/services.nix) so restart semantics are preserved.
         # ---------------------------------------------------------------------
+        etcConfDir = "/etc/azerothcore";
         coreConfFile = name:
             {
                 name = "etc/${name}.conf";
+                etcRel = "${name}.conf";
                 file = pkgs.writeText "${name}.conf" (conf.renderConf name cfg."${name}Config");
             };
         moduleConfFile = name: entry:
@@ -163,6 +172,7 @@
             in
             {
                 name = "etc/modules/${confName}";
+                etcRel = "modules/${confName}";
                 file = pkgs.writeText confName (conf.renderConf confName (autoDbKey // entry.config));
             };
         configFiles =
@@ -185,7 +195,16 @@
         # itself, hence the local reference in the units.)
         # ---------------------------------------------------------------------
         azerothcorePkg = (import ./_lib/package.nix) {
-            inherit pkgs configFiles;
+            inherit pkgs;
+            # Symlink specs only ({ name, target }): the conf *content* is
+            # materialized under /etc/azerothcore (see confEtc below) and is
+            # not a build input of the package, so editing a conf does not
+            # retrigger the CMake build.
+            configFiles =
+                lib.map (f: {
+                    inherit (f) name;
+                    target = "${etcConfDir}/${f.etcRel}";
+                }) configFiles;
             inherit (cfg.source) src version;
             # Directory name -> module source tree; the package copies each
             # into $sourceRoot/modules/<name>/ before CMake configure.
@@ -196,7 +215,7 @@
         # need) and before `config`, which consumes their `.config` attrsets.
         mysqlLib = import ./_lib/mysql.nix { inherit lib pkgs cfg; };
         servicesLib = import ./_lib/services.nix {
-            inherit lib pkgs cfg azerothcorePkg;
+            inherit lib pkgs cfg azerothcorePkg configFiles;
             mysqlInitSql = mysqlLib.mysqlInitSql;
         };
 
@@ -214,13 +233,32 @@
                 lib.mapAttrs (_: v: lib.mkDefault v) mkConfDefaults.dbimport;
         };
 
-        # All the enable-gated settings: conf defaults + MySQL + systemd
-        # services + firewall + packages. The fragments share top-level keys
-        # (`services`, `systemd`) but have disjoint leaf paths, so a shallow
-        # `//` would silently drop a whole subtree; lib.recursiveUpdate keeps
-        # them all.
+        # Materialize the generated confs under /etc/azerothcore - the
+        # targets of the symlinks the package installs. A conf edit rewrites
+        # these files at activation time (cheap) instead of rebuilding
+        # azerothcorePkg. environment.etc maps <relative path> ->
+        # { source = …; } (a submodule), so the /etc/azerothcore prefix is
+        # part of each key. The default mode "symlink" means each file is a
+        # symlink into the Nix store; the worldserver follows that chain
+        # transparently. A host can override one file's content via
+        # environment.etc."azerothcore/<file>".text / .source.
+        confEtc = {
+            environment.etc = lib.listToAttrs (
+                lib.map (f: {
+                    name = "azerothcore/${f.etcRel}";
+                    value = { source = f.file; };
+                }) configFiles
+            );
+        };
+
+        # All the enable-gated settings: conf defaults + conf installation +
+        # MySQL + systemd services + firewall + packages. The fragments share
+        # top-level keys (`services`, `systemd`, `environment`) but have
+        # disjoint leaf paths, so a shallow `//` would silently drop a whole
+        # subtree; lib.recursiveUpdate keeps them all.
         enabledSettings = lib.mkIf cfg.enable
-            (lib.recursiveUpdate confDefaults (lib.recursiveUpdate mysqlLib.config servicesLib.config));
+            (lib.recursiveUpdate (lib.recursiveUpdate confDefaults confEtc)
+                (lib.recursiveUpdate mysqlLib.config servicesLib.config));
     in
     {
         options.services.azerothcore = {
@@ -376,8 +414,10 @@
                 type = conf.confValueType;
                 default = { };
                 description = ''
-                    Contents of authserver.conf as a set of key/value pairs.
-                    See the module source for the shipped defaults
+                    Contents of authserver.conf as a set of key/value pairs,
+                    installed to /etc/azerothcore/authserver.conf (the
+                    package carries a symlink to it). See the module source
+                    for the shipped defaults
                     (RealmServerPort, LoginDatabaseInfo, LogsDir, TempDir,
                     MySQLExecutable). Note: SourceDirectory is not a conf key
                     here - it is supplied as the AC_SOURCE_DIRECTORY

@@ -12,11 +12,14 @@
 #   modules/<name>/ it is merged into in the source tree) to the module's
 #   source tree (a store path or derivation whose top level is the module,
 #   i.e. contains a src/ subdirectory). Defaults to { } (core only).
-# - configFiles: list of { name, file } pairs installed relative to $out
-#   (name = "etc/worldserver.conf"), where file is a derivation providing
-#   the file content (typically pkgs.writeText). The core reads
-#   <prefix>/etc/<name>.conf (CONF_DIR is baked in by its CMake) and, for
-#   each compiled-in module, <prefix>/etc/modules/<module>.conf.
+# - configFiles: list of { name, target } pairs. A symlink is installed at
+#   $out/<name> (name = "etc/worldserver.conf" or "etc/modules/<module>.conf")
+#   pointing at <target>, the runtime location of the file's content (the
+#   NixOS module materializes it under /etc/azerothcore via environment.etc).
+#   The core reads <prefix>/etc/<name>.conf (CONF_DIR is baked in by its
+#   CMake) and, for each compiled-in module, <prefix>/etc/modules/<module>.
+#   conf. Keeping the conf *content* out of the build inputs is deliberate:
+#   editing a conf then changes only the (cheap) writeText, not this build.
 #
 # The module merging happens in the build itself (postUnpack): each module
 # is copied into $sourceRoot/modules/<name>/ before the configure phase,
@@ -106,12 +109,13 @@ stdenv.mkDerivation (finalAttrs: {
     ];
     cmakeBuildType = "RelWithDebInfo"; # debug symbols help with crash triage
 
-    # Install the generated config files next to the binaries
-    # (CONF_DIR == <prefix>/etc), then persist the merged source tree for
-    # the runtime SourceDirectory SQL lookups (see file header).
+    # Lay symlinks next to the binaries (CONF_DIR == <prefix>/etc) pointing
+    # at the runtime conf locations (see the file header), then persist the
+    # merged source tree for the runtime SourceDirectory SQL lookups.
     postInstall =
         lib.concatMapStrings (f: ''
-            install -Dm644 ${f.file} $out/${f.name}
+            install -d $(dirname $out/${f.name})
+            ln -s ${f.target} $out/${f.name}
         '') configFiles
         + ''
             cp -r $sourceRoot $out/source
