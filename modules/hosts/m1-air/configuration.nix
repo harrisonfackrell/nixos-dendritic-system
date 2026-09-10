@@ -62,7 +62,7 @@
                 settings.Theme = {
                     CursorTheme = "breeze_cursors";
                     size = 24;
-                }
+                };
             };
         };
 
