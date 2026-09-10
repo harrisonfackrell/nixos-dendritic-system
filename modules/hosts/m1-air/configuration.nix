@@ -57,7 +57,12 @@
                 theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
                 extraPackages = with pkgs; [
                     qt6.qtmultimedia
+                    kdePackages.breeze
                 ];
+                settings.Theme = {
+                    CursorTheme = "breeze_cursors";
+                    size = 24;
+                }
             };
         };
 
