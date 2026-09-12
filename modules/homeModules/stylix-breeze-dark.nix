@@ -14,8 +14,8 @@
                 dark = "breeze-dark";
             };
             cursor = {
-                name = "breeze_cursors";
-                package = pkgs.kdePackages.breeze;
+                name = "macOS";
+                package = pkgs.apple-cursor;
                 size = 24;
             };
             image = "${pkgs.fetchurl {
