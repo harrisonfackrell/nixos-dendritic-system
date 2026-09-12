@@ -4,7 +4,7 @@
             enable = true;
             settings = {
                 main = {
-                    dpi-aware = "no";
+                    dpi-aware = "yes";
                     launch-prefix = "uwsm app --";
                 };
             };
