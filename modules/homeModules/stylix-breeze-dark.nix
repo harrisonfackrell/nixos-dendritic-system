@@ -5,9 +5,10 @@
         ];
         stylix = {
             enable = true;
-            targets.qt.colors.enable = true;
+            targets.qt.enable = true;
             targets.noctalia-shell.enable = true;
             #targets.noctalia-greeter.enable = true; (Stylix PR 2490; coming soon)
+            targets.fuzzel.enable = true;
             icons = {
                 enable = true;
                 package = pkgs.kdePackages.breeze-icons;

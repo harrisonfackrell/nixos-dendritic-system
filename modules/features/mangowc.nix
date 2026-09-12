@@ -38,6 +38,8 @@
             pkgs.pcmanfm-qt
             pkgs.file-roller
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
+            pkgs.fuzzel
+            self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
     };
@@ -71,7 +73,7 @@
                     "SUPER+SHIFT,comma,tagmon,left"
                     "SUPER+SHIFT,period,tagmon,right"
                     "SUPER,w,spawn,firefox"
-                    "SUPER,d,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofuzzel}"
+                    "SUPER,d,spawn,fuzzel"
                     "SUPER,t,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot}"
                     "SUPER,f,spawn,pcmanfm-qt"
                     "SUPER+SHIFT,q,killclient"
@@ -139,15 +141,6 @@
                 smartgaps = 1;
                 borderpx = 1;
                 default_mfact = 0.5;
-            };
-        };
-        packages.neofuzzel = inputs.wrapper-modules.wrappers.fuzzel.wrap {
-            inherit pkgs;
-            settings = {
-                main = {
-                    dpi-aware = "no";
-                    launch-prefix = "uwsm app --";
-                };
             };
         };
         packages.neofoot = inputs.wrapper-modules.wrappers.foot.wrap {

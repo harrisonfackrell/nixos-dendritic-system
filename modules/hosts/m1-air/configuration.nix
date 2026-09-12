@@ -18,6 +18,7 @@
                 imports = [
                     self.homeModules.noctalia
                     self.homeModules.stylix-breeze-dark
+                    self.homeModules.fuzzel
                 ];
                 home = {
                     packages = with pkgs; [
