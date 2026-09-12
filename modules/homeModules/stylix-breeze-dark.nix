@@ -18,10 +18,7 @@
                 package = pkgs.apple-cursor;
                 size = 24;
             };
-            image = "${pkgs.fetchurl {
-                url = "https://raw.githubusercontent.com/NixOS/nixos-artwork/refs/heads/master/wallpapers/nixos-wallpaper-catppuccin-mocha.png";
-                hash = "sha256-fmKFYw2gYAYFjOv4lr8IkXPtZfE1+88yKQ4vjEcax1s=";
-            }}";
+            image = "${pkgs.nixos-artwork.wallpapers.catppuccin-mocha.src}";
             polarity = "dark";
         };
     };
