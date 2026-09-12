@@ -45,7 +45,7 @@
     perSystem = { pkgs, lib, ... }: {
         packages.neomango = inputs.wrapper-modules.wrappers.mangowc.wrap {
             inherit pkgs;
-            package = pkgs.mango; #necessary until wrapper-modules references correct package
+            package = pkgs.mango;
             settings = {
                 bind = [
                     "SUPER,1,view,1"
@@ -71,7 +71,7 @@
                     "SUPER+SHIFT,comma,tagmon,left"
                     "SUPER+SHIFT,period,tagmon,right"
                     "SUPER,w,spawn,firefox"
-                    "SUPER,d,spawn,noctalia msg panel-toggle launcher"
+                    "SUPER,d,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofuzzel}"
                     "SUPER,t,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot}"
                     "SUPER,f,spawn,pcmanfm-qt"
                     "SUPER+SHIFT,q,killclient"
@@ -145,7 +145,8 @@
             inherit pkgs;
             settings = {
                 main = {
-                    dpi-aware = "no";
+                    dpi-aware = "yes";
+                    launch-prefix = "uwsm app --";
                 };
             };
         };
