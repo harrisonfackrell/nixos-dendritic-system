@@ -13,7 +13,7 @@
                 mango = {
                     prettyName = "Mango";
                     comment = "Mango compositor managed by UWSM";
-                    binPath = "/run/current-system/sw/bin/mango";
+                    binPath = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neomango}";
                 };
             };
         };
