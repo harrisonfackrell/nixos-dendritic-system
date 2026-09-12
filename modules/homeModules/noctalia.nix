@@ -40,6 +40,7 @@
             };
         };
         programs.swaylock.enable = true;
+        programs.foot.enable = true;
         home.packages = with pkgs; [
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
