@@ -35,7 +35,7 @@
             pkgs.playerctl
             pkgs.pavucontrol
             pkgs.firefox
-            pkgs.pcmanfm-qt
+            pkgs.nautilus
             pkgs.file-roller
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
             pkgs.fuzzel
@@ -76,7 +76,7 @@
                     "SUPER,w,spawn,firefox"
                     "SUPER,d,spawn,fuzzel"
                     "SUPER,t,spawn,foot"
-                    "SUPER,f,spawn,pcmanfm-qt"
+                    "SUPER,f,spawn,nautilus"
                     "SUPER+SHIFT,q,killclient"
                     "SUPER+SHIFT,up,zoom"
                     "SUPER,left,focusstack,prev"
