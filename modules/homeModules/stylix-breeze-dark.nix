@@ -21,6 +21,7 @@
                 package = pkgs.apple-cursor;
                 size = 24;
             };
+            opacity.terminal = 0.8;
             image = "${pkgs.nixos-artwork.wallpapers.catppuccin-mocha.src}";
             polarity = "dark";
         };

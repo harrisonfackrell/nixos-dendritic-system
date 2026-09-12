@@ -39,7 +39,7 @@
             pkgs.file-roller
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
             pkgs.fuzzel
-            self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot
+            pkgs.foot
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
     };
@@ -74,7 +74,7 @@
                     "SUPER+SHIFT,period,tagmon,right"
                     "SUPER,w,spawn,firefox"
                     "SUPER,d,spawn,fuzzel"
-                    "SUPER,t,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neofoot}"
+                    "SUPER,t,spawn,foot"
                     "SUPER,f,spawn,pcmanfm-qt"
                     "SUPER+SHIFT,q,killclient"
                     "SUPER+SHIFT,up,zoom"
