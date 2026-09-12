@@ -5,6 +5,7 @@
             self.nixosModules.mangowc
             self.nixosModules.firefox
             self.nixosModules.plymouth
+            self.nixosModules.noctaliaGreeter
             inputs.apple-silicon.nixosModules.apple-silicon-support
             inputs.home-manager.nixosModules.home-manager
         ];
@@ -45,19 +46,6 @@
         users.users.obiwanshinobi = {
             isNormalUser = true;
             extraGroups = [ "wheel" ];
-        };
-
-        services.displayManager.noctalia-greeter = {
-            enable = true;
-            cursorTheme = {
-                name = "macOS";
-                package = pkgs.apple-cursor;
-            };
-            settings = {
-                cursor = {
-                    size = 24;
-                };
-            };
         };
 
         nixpkgs.config.allowUnfree = true;

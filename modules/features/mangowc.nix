@@ -145,7 +145,7 @@
             inherit pkgs;
             settings = {
                 main = {
-                    dpi-aware = "yes";
+                    dpi-aware = "no";
                     launch-prefix = "uwsm app --";
                 };
             };

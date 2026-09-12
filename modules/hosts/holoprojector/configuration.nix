@@ -5,6 +5,7 @@
             self.nixosModules.mangowc
             self.nixosModules.firefox
             self.nixosModules.plymouth
+            self.nixosModules.noctaliaGreeter
             inputs.home-manager.nixosModules.home-manager
         ];
 
