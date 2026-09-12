@@ -3,9 +3,7 @@
         imports = [
             inputs.noctalia.homeModules.default
         ];
-
         nixpkgs.config.allowUnfree = true;
-
         programs.noctalia.enable = true;
         programs.noctalia.settings = {
             wallpaper = {
@@ -30,6 +28,15 @@
                     { action = "logout"; command = "uwsm stop"; }
                     { action = "reboot"; }
                 ];
+            };
+        };
+        programs.fuzzel = {
+            enable = true;
+            settings = {
+                main = {
+                    dpi-aware = "yes";
+                    launch-prefix = "uwsm app --";
+                };
             };
         };
 
