@@ -40,6 +40,7 @@
             self.packages.${pkgs.stdenv.hostPlatform.system}.neomango
             pkgs.fuzzel
             pkgs.foot
+            pkgs.swaylock
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
     };
@@ -107,7 +108,7 @@
                     "SUPER+ALT,b,setlayout,vertical_tile"
                     "SUPER,x,spawn,noctalia msg bar-toggle"
                     "SUPER,z,spawn,noctalia msg panel-toggle clipboard"
-                    "SUPER+SHIFT,l,spawn,${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"
+                    "SUPER+SHIFT,l,spawn,swaylock"
                     "SUPER+SHIFT,p,spawn,noctalia msg panel-toggle session"
                     "SUPER,b,spawn,noctalia msg panel-toggle control-center power"
                     "SUPER,c,spawn,noctalia msg panel-toggle control-center home"
@@ -141,13 +142,6 @@
                 smartgaps = 1;
                 borderpx = 1;
                 default_mfact = 0.5;
-            };
-        };
-        packages.neoswaylock = inputs.wrapper-modules.wrappers.swaylock.wrap {
-            inherit pkgs;
-            settings = {
-                image = "${pkgs.nixos-artwork.wallpapers.catppuccin-latte.src}";
-                scaling = "fill";
             };
         };
     };

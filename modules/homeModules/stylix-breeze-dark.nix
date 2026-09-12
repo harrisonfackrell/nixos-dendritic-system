@@ -10,6 +10,10 @@
             #targets.noctalia-greeter.enable = true; (Stylix PR 2490; coming soon)
             targets.fuzzel.enable = true;
             targets.foot.enable = true;
+            targets.swaylock = {
+                enable = true;
+                image.override = "${pkgs.nixos-artwork.wallpapers.catppuccin-latte.src}";
+            };
             icons = {
                 enable = true;
                 package = pkgs.kdePackages.breeze-icons;
@@ -23,6 +27,7 @@
             };
             opacity.terminal = 0.8;
             image = "${pkgs.nixos-artwork.wallpapers.catppuccin-mocha.src}";
+            imageScalingMode = "fill";
             polarity = "dark";
         };
     };

@@ -22,8 +22,8 @@
             };
             shell = {
                 session.actions = [
-                    { action = "lock"; command = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock}"; }
-                    { action = "suspend"; lock_before_suspend = false; command = "${lib.getExe self.packages.${pkgs.stdenv.hostPlatform.system}.neoswaylock} & noctalia msg session suspend"; }
+                    { action = "lock"; command = "swaylock"; }
+                    { action = "suspend"; lock_before_suspend = false; command = "swaylock & noctalia msg session suspend"; }
                     { action = "shutdown"; }
                     { action = "logout"; command = "uwsm stop"; }
                     { action = "reboot"; }
@@ -39,7 +39,7 @@
                 };
             };
         };
-
+        programs.swaylock.enable = true;
         home.packages = with pkgs; [
             inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
