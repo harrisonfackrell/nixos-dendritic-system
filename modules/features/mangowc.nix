@@ -143,18 +143,6 @@
                 default_mfact = 0.5;
             };
         };
-        packages.neofoot = inputs.wrapper-modules.wrappers.foot.wrap {
-            inherit pkgs;
-            settings = {
-                main = {
-                    dpi-aware = "yes";
-                };
-                colors-dark = {
-                    alpha = 0.8;
-                    alpha-mode = "all";
-                };
-            };
-        };
         packages.neoswaylock = inputs.wrapper-modules.wrappers.swaylock.wrap {
             inherit pkgs;
             settings = {

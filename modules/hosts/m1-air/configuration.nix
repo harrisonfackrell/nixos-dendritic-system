@@ -19,6 +19,7 @@
                     self.homeModules.noctalia
                     self.homeModules.stylix-breeze-dark
                     self.homeModules.fuzzel
+                    self.homeModules.foot
                 ];
                 home = {
                     packages = with pkgs; [

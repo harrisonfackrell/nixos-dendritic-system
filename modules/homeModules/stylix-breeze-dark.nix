@@ -9,6 +9,7 @@
             targets.noctalia-shell.enable = true;
             #targets.noctalia-greeter.enable = true; (Stylix PR 2490; coming soon)
             targets.fuzzel.enable = true;
+            targets.foot.enable = true;
             icons = {
                 enable = true;
                 package = pkgs.kdePackages.breeze-icons;
