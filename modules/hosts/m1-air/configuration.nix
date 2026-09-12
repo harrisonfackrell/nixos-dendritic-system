@@ -47,20 +47,14 @@
             extraGroups = [ "wheel" ];
         };
 
-        services.displayManager = {
-            sddm = {
-                enable = true;
-                wayland = {
-                    enable = true;
-                    compositor = "kwin";
-                };
-                theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
-                extraPackages = with pkgs; [
-                    qt6.qtmultimedia
-                    kdePackages.breeze
-                ];
-                settings.Theme = {
-                    CursorTheme = "breeze_cursors";
+        services.displayManager.noctalia-greeter = {
+            enable = true;
+            cursorTheme = {
+                name = "macOS";
+                package = pkgs.apple-cursor;
+            };
+            settings = {
+                cursor = {
                     size = 24;
                 };
             };
