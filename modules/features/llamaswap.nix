@@ -51,7 +51,7 @@
           };
           qwen38-dense-mmproj = pkgs.fetchurl {
             url = "https://huggingface.co/Jackrong/Qwopus3.8-27B-Flash-GGUF/resolve/main/mmproj-F32.gguf";
-            sha256 = "UuaBjk0Y7qAQxQ5SReqhCozD3MMO/qT/YMutir9WaeE=";
+            sha256 = "52e6816e4d18eea010c50e5245eaa10a8cc3dcc30efea4ff60cbad8abf5669e1";
           };
           qwen36-sparse = pkgs.fetchurl {
             url = "https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF/resolve/main/Qwopus3.6-35B-A3B-Coder-MTP-Q5_K_M.gguf";
