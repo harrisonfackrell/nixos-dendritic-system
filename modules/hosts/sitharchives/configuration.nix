@@ -3,7 +3,7 @@
     flake.nixosModules.sitharchivesConfiguration = { config, lib, pkgs, modulesPath, ... }: {
         imports = [
             self.nixosModules.sitharchivesHardware
-            # self.nixosModules.searx
+            self.nixosModules.searx
             self.nixosModules.openwebui
             self.nixosModules.sillytavern
         ];

@@ -1,17 +1,17 @@
 { self, inputs, ... }:
 {
+    # Internal-only SearXNG: bound to loopback, served by the built-in HTTP
+    # server (the NixOS module recommends this mode for LAN/local-only use
+    # instead of uWSGI + nginx), no firewall port opened. It exists to give
+    # Open WebUI's LLM agents a local search API (see openwebui.nix), so it
+    # must never be reachable from the open internet.
     flake.nixosModules.searx = { config, lib, pkgs, ... }: {
         services.searx = {
             enable = true;
             redisCreateLocally = true;
-
-            # UWSGI configuration
-            configureUwsgi = true;
-            uwsgiConfig = {
-                socket = "/run/searx/searx.sock";
-                http = ":8888";
-                chmod-socket = "660";
-            };
+            # No openFirewall, no configureUwsgi, no nginx vhost: this is a
+            # private backend, not a public search front end.
+            openFirewall = lib.mkDefault false;
 
             # YAML configuration
             settings = {
@@ -48,15 +48,19 @@
                     formats = [ "json" ];
                 };
 
-                # Server configuration
+                # Server configuration: loopback only.
                 server = {
-                    base_url = "https://search.example.com";
+                    # Local address Open WebUI dials for its search tooling;
+                    # both services run in the same LXC container.
+                    base_url = "http://127.0.0.1:8888";
                     port = 8888;
-                    bind_address = "0.0.0.0";
+                    bind_address = "127.0.0.1";
                     secret_key = "Z3gT1n9K6vL0qX2B4sR7hCwP5uW8yFjD";
+                    # No rate limiting: the only client is Open WebUI on
+                    # loopback, and the limiter would need a real public
+                    # front end to protect against.
                     limiter = false;
                     public_instance = false;
-                    image_proxy = true;
                     method = "GET";
                 };
 
@@ -145,25 +149,6 @@
                     "Unit converter plugin"
                     "Tracker URL Remover"
                 ];
-            };
-        };
-
-        # Systemd configuration
-        systemd.services.nginx.serviceConfig.ProtectHome = false;
-
-        # User management
-        users.groups.searx.members = [ "nginx" ];
-
-        # Nginx configuration
-        services.nginx = {
-            enable = true;
-            recommendedGzipSettings = true;
-            recommendedOptimisation = true;
-            recommendedProxySettings = true;
-            recommendedTlsSettings = true;
-            virtualHosts."obiwanshinobi.ct.ws".locations."/" = {
-                uwsgiPass = "unix:${config.services.searx.uwsgiConfig.socket}";
-                recommendedProxySettings = true;
             };
         };
     };
