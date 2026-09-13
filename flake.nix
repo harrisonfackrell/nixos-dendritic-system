@@ -27,6 +27,10 @@
             url = "github:nix-community/stylix";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+        crustacean = {
+            url = "github:harrisonfackrell/crustacean";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
 
     outputs = inputs:

@@ -4,6 +4,7 @@
         imports = [
             self.nixosModules.sitharchivesHardware
             self.nixosModules.searx
+            inputs.crustacean.nixosModules.default
         ];
 
         nix.settings = {
@@ -36,6 +37,14 @@
             configFile = "/home/obiwanshinobi/config.yaml";
             whitelist = true;
         };
+
+        # Crustacean: LLM-avatar social network (server + bundled web UI)
+        services.crustacean = {
+            enable = true;
+            port = 3001;
+            openFirewall = true;
+        };
+
         networking.firewall.allowedTCPPorts = [ 8000 ];
 
         environment.systemPackages = [ pkgs.git ];

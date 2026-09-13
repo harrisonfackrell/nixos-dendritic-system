@@ -89,6 +89,26 @@
         "type": "github"
       }
     },
+    "crustacean": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789275763,
+        "narHash": "sha256-a/U8DTNTfYjfe8ErVp8QXFV76DM9OJwRoCnmfq6BQZs=",
+        "owner": "harrisonfackrell",
+        "repo": "crustacean",
+        "rev": "733d7ef9d585ae1ed4a1f15a25abd3ebafb77570",
+        "type": "github"
+      },
+      "original": {
+        "owner": "harrisonfackrell",
+        "repo": "crustacean",
+        "type": "github"
+      }
+    },
     "firefox-gnome-theme": {
       "flake": false,
       "locked": {
@@ -308,6 +328,7 @@
     "root": {
       "inputs": {
         "apple-silicon": "apple-silicon",
+        "crustacean": "crustacean",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
