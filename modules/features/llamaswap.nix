@@ -46,12 +46,12 @@
           };
           # Programming
           qwen38-dense = pkgs.fetchurl {
-            url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q5_K_XL.gguf";
-            sha256 = "8601193d3d5760c37fb8ce1b43afebc69df5fb24e1fbc5a547c32e2200305276";
+            url = "https://huggingface.co/Jackrong/Qwopus3.8-27B-Flash-GGUF/resolve/main/Qwopus3.8-27B-Flash-MTP-Q5_K_M.gguf";
+            sha256 = "abc97cf74cae75be61667f3c640d9abc76ad87c617a10ee1fa47beb66aec3746";
           };
           qwen38-dense-mmproj = pkgs.fetchurl {
-            url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-BF16.gguf";
-            sha256 = "83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53";
+            url = "https://huggingface.co/Jackrong/Qwopus3.8-27B-Flash-GGUF/resolve/main/mmproj-F32.gguf";
+            sha256 = "52e6816e4d18eea010c50e5245eaa10a8cc3dcc30efea4ff60cbad8abf5669e1";
           };
           qwen36-sparse = pkgs.fetchurl {
             url = "https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF/resolve/main/Qwopus3.6-35B-A3B-Coder-MTP-Q5_K_M.gguf";
