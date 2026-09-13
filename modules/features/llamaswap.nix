@@ -12,6 +12,10 @@
           llama-server = lib.getExe' llama-cpp "llama-server";
           # Roleplaying
           meromero-sparse = pkgs.fetchurl {
+            url = "https://huggingface.co/zerofata/G4-MeroMero-26B-A4B-gguf/resolve/main/G4-MeroMero-26B-A4B-Q6_K.gguf";
+            sha256 = "d507f52a54b21fd3b3a0579a7154be4a9ea77e4ee01b5f6eaaff287e863f48e9";
+          };
+          meromero-heretic = pkgs.fetchurl {
             url = "https://huggingface.co/mradermacher/G4-MeroMero-26B-A4B-it-uncensored-heretic-i1-GGUF/resolve/main/G4-MeroMero-26B-A4B-it-uncensored-heretic.i1-Q6_K.gguf";
             sha256 = "8bdc9c0168dee138a42f373b341b5527e430635ac32aad91c66c63c620c23694";
           };
@@ -67,6 +71,30 @@
             # Roleplaying
             "MeroMero Sparse" = {
               cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
+              filters = {
+                setParams = {
+                  temperature = 0.9;
+                  min_p = 0.05;
+                  chat_template_kwargs = {
+                    enable_thinking = false;
+                  };
+                };
+                setParamsByID = {
+                  "$\{MODEL_ID\} (Thinking)" = {
+                    chat_template_kwargs = {
+                      enable_thinking = true;
+                    };
+                  };
+                  "$\{MODEL_ID\} (Instruct)" = {
+                    chat_template_kwargs = {
+                      enable_thinking = false;
+                    };
+                  };
+                };
+              };
+            };
+            "MeroMero Heretic" = {
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-heretic} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.9;
