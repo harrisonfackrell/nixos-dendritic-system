@@ -53,22 +53,6 @@
             extraGroups = [ "networkmanager" "wheel" "video" "render" ];
         };
 
-        services = {
-            displayManager = {
-                sddm = {
-                    enable = true;
-                    wayland = {
-                        enable = true;
-                        compositor = "kwin";
-                    };
-                    theme = "${pkgs.sddm-astronaut}/share/sddm/themes/sddm-astronaut-theme";
-                    extraPackages = with pkgs; [
-                        qt6.qtmultimedia
-                    ];
-                };
-            };
-        };
-
         nixpkgs.config.allowUnfree = true;
 
         networking = {
