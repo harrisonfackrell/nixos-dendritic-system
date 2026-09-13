@@ -10,7 +10,7 @@ fork (`Playerbot` branch) with
 | Piece | Where |
 |---|---|
 | Package definition (nixpkgs-style) | `modules/services/azerothcore/_lib/package.nix` |
-| Servers (authserver, worldserver, dbimport) + modules | built from GitHub via flake inputs, in the Nix store; exposed as `pkgs.azerothcoreWotlk` |
+| Servers (authserver, worldserver, dbimport) + modules | built from GitHub via `pkgs.fetchFromGitHub` (pinned rev + hash), in the Nix store; exposed as `pkgs.azerothcoreWotlk` |
 | Server configs (generated) | `/etc/azerothcore/` via `environment.etc`; the package carries symlinks to them |
 | MySQL 8.4 with `acore_auth`, `acore_world`, `acore_characters`, `acore_playerbots` | `services.mysql` (localhost only) |
 | systemd units | `azerothcore-mysql-init`, `azerothcore-dbimport`, `azerothcore-authserver`, `azerothcore-worldserver` |
@@ -61,23 +61,32 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
 
 - **Choosing the core and modules**: the AzerothCore source tree and the
   set of compiled-in modules are options, so you can substitute a fork of
-  the core or add/remove modules without touching the module:
+  the core or add/remove modules without touching the module. This host
+  does both: `source.src` substitutes the mod-playerbots fork of the core
+  for the module's upstream azerothcore/azerothcore-wotlk default, and
+  `modules` compiles mod-playerbots in:
 
   ```nix
   services.azerothcore = {
-      # Substitute a fork (any store path / derivation with a CMakeLists.txt
-      # and src/ at the top level; fetchFromGitHub for content-hash pinning):
-      # source = {
-      #     src = pkgs.fetchFromGitHub {
-      #         owner = "…"; repo = "azerothcore-wotlk"; rev = "…"; hash = "sha256-…";
-      #     };
-      #     version = "17.0.0";
-      # };
+      # The core defaults to a pinned commit of upstream
+      # azerothcore/azerothcore-wotlk `master` (pkgs.fetchFromGitHub, in
+      # the module's option default). Substitute a fork, as here:
+      source = {
+          src = pkgs.fetchFromGitHub {
+              owner = "mod-playerbots"; repo = "azerothcore-wotlk";
+              rev = "…"; hash = "sha256-…";
+          };
+          version = "17.0.0";
+      };
       # Modules are keyed by the directory name they're installed as
       # (modules/<name>/); the module must contain a src/ subdirectory.
       modules = {
           mod-playerbots = {
-              src = inputs.playerbots;      # or pkgs.fetchFromGitHub { … };
+              # Fetch the latest commit with a pinned rev + content hash:
+              src = pkgs.fetchFromGitHub {
+                  owner = "mod-playerbots"; repo = "mod-playerbots";
+                  rev = "…"; hash = "sha256-…";
+              };
               database = "acore_playerbots";
           };
           # mod-another = { src = pkgs.fetchFromGitHub { … }; };
@@ -128,11 +137,17 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
   `systemctl restart azerothcore-worldserver` for immediate effect; a
   later `nixos-rebuild` reconciles them back to the Nix-declared
   content.
-- **Updating AzerothCore / playerbots**:
-  `nix flake update azerothcore playerbots` in this flake, then rebuild.
-  Alternatively point `source.src` / `modules.<name>.src` at a
-  `pkgs.fetchFromGitHub` derivation with a pinned rev + hash. The DB
-  updaters apply any pending SQL automatically on next start.
+- **Updating AzerothCore / playerbots**: bump the `rev` + `hash` of the
+  `pkgs.fetchFromGitHub` derivations in `configuration.nix` (the core
+  fork in `source.src`, the module in `modules.mod-playerbots.src`), then
+  rebuild. (The module's upstream default in
+  `modules/services/azerothcore/default.nix` only applies if you remove
+  the `source` override.) To grab the latest commit, get the head of the
+  branch with `git ls-remote`, download the matching
+  `https://github.com/<owner>/<repo>/archive/<rev>.tar.gz` and use its
+  `sha256` (Nix's `sha256-<base64>` form, i.e.
+  `nix-prefetch-github <owner> <repo> <rev>` or `base64 -w0` of the digest).
+  The DB updaters apply any pending SQL automatically on next start.
 - **Creating the first account**: after the worldserver's first start,
   follow the AzerothCore wiki ("Accounts" — create an auth account and a
   realmlist entry), e.g. via `mysql -u acore -pacore acore_auth`.

@@ -13,14 +13,20 @@
     # modules (e.g. fetched with pkgs.fetchFromGitHub) without touching this
     # module:
     #   services.azerothcore.source = {
-    #       src = inputs.someAzerothcoreFork;
+    #       src = pkgs.fetchFromGitHub {
+    #           owner = "some-org"; repo = "azerothcore-wotlk";
+    #           rev = "…"; hash = "sha256-…";
+    #       };
     #       version = "17.0.0";
     #   };
     #   services.azerothcore.modules = {
     #       # The attribute name is the directory the module is copied into
     #       # (modules/<name>/); the module must contain a src/ subdirectory.
     #       mod-playerbots = {
-    #           src = inputs.playerbots;
+    #           src = pkgs.fetchFromGitHub {
+    #               owner = "mod-playerbots"; repo = "mod-playerbots";
+    #               rev = "…"; hash = "sha256-…";
+    #           };
     #           # Sets the acore_playerbots DB and auto-generates the
     #           # PlayerbotsDatabaseInfo connection string in its conf.
     #           database = "acore_playerbots";
@@ -269,15 +275,22 @@
                     options = {
                         src = lib.mkOption {
                             type = lib.types.package;
-                            default = inputs.azerothcore;
+                            # Latest commit of azerothcore/azerothcore-wotlk
+                            # `master`, pinned with a content hash.
+                            default = pkgs.fetchFromGitHub {
+                                owner = "azerothcore";
+                                repo = "azerothcore-wotlk";
+                                rev = "f1bef3bc0a2f6396175e184c2cac70df77b46d11";
+                                hash = "sha256-nUC7UoNTw0H1l6-7Qe7M2ClHGmJvSCzCEITh6SupLO0";
+                            };
                             description = ''
                                 AzerothCore (WotLK) source tree: a store path or
                                 derivation whose top level is the core (a
                                 CMakeLists.txt and a src/ directory). Defaults to
-                                the mod-playerbots/azerothcore-wotlk `Playerbot`
-                                branch fetched as a flake input. Point this at a
-                                fork (e.g. via pkgs.fetchFromGitHub) to build a
-                                different core.
+                                the latest commit of azerothcore/azerothcore-wotlk
+                                `master`, fetched with pkgs.fetchFromGitHub. Point
+                                this at a fork (e.g. another
+                                pkgs.fetchFromGitHub) to build a different core.
                             '';
                         };
                         version = lib.mkOption {

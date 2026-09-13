@@ -1,4 +1,4 @@
-{ self, inputs, ... }: {
+{ self, ... }: {
     flake.nixosModules.stormwindConfiguration = { config, lib, pkgs, modulesPath, ... }: {
         imports = [
             self.nixosModules.stormwindHardware
@@ -34,15 +34,30 @@
             enable = true;
             # Expose auth (3724) and world (8085) to the LAN
             openFirewall = true;
+            # Substitute the mod-playerbots fork of the core (latest commit
+            # of its `Playerbot` branch, pinned with a content hash) for the
+            # module's upstream azerothcore/azerothcore-wotlk default.
+            source = {
+                src = pkgs.fetchFromGitHub {
+                    owner = "mod-playerbots";
+                    repo = "azerothcore-wotlk";
+                    rev = "06234df3d5ab26c93f4f1f06f3edb828b73ecd3c";
+                    hash = "sha256-95w0z0fcvoiKxgCzEqVKScy1ozJsFHnTd0xX8TYjA9U";
+                };
+            };
             # Modules are keyed by the directory they're installed as
             # (modules/<name>/). `database` ensures the MySQL database and
-            # generates the module's <Base>DatabaseInfo conf key. The core
-            # source defaults to the mod-playerbots/azerothcore-wotlk
-            # `Playerbot` branch flake input; point `source.src` at a
-            # fetchFromGitHub to substitute another fork.
+            # generates the module's <Base>DatabaseInfo conf key.
             modules = {
                 mod-playerbots = {
-                    src = inputs.playerbots;
+                    # Latest commit of mod-playerbots/mod-playerbots,
+                    # pinned with a content hash.
+                    src = pkgs.fetchFromGitHub {
+                        owner = "mod-playerbots";
+                        repo = "mod-playerbots";
+                        rev = "b6696bdbd3740e575598d167d69f39f68cc0b907";
+                        hash = "sha256-4VGXpaiAx3s16ZHAxgdk3rfLAQsV3OCrGSJgAUYBaIc";
+                    };
                     database = "acore_playerbots";
                 };
             };

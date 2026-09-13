@@ -27,18 +27,6 @@
             url = "github:nix-community/stylix";
             inputs.nixpkgs.follows = "nixpkgs";
         };
-        # Not a flake for our purposes (its flake only exports devShells) —
-        # fetch it as a source-only input so `inputs.azerothcore` is the
-        # source tree itself, not a flake outputs attrset.
-        azerothcore = {
-            url = "github:mod-playerbots/azerothcore-wotlk/Playerbot";
-            flake = false;
-        };
-        # Not a flake (no flake.nix) — fetch it as a source-only input.
-        playerbots = {
-            url = "git+https://github.com/mod-playerbots/mod-playerbots";
-            flake = false;
-        };
     };
 
     outputs = inputs:
