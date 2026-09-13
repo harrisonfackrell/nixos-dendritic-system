@@ -12,8 +12,8 @@
           llama-server = lib.getExe' llama-cpp "llama-server";
           # Roleplaying
           meromero-sparse = pkgs.fetchurl {
-            url = "https://huggingface.co/zerofata/G4-MeroMero-26B-A4B-gguf/resolve/main/G4-MeroMero-26B-A4B-Q6_K.gguf";
-            sha256 = "d507f52a54b21fd3b3a0579a7154be4a9ea77e4ee01b5f6eaaff287e863f48e9";
+            url = "https://huggingface.co/mradermacher/G4-MeroMero-26B-A4B-it-uncensored-heretic-i1-GGUF/resolve/main/G4-MeroMero-26B-A4B-it-uncensored-heretic.i1-Q6_K.gguf";
+            sha256 = "8bdc9c0168dee138a42f373b341b5527e430635ac32aad91c66c63c620c23694";
           };
           glistening-gem-dense = pkgs.fetchurl {
             url = "https://huggingface.co/mradermacher/Glistening-Gem-31B-v2.1-i1-GGUF/resolve/main/Glistening-Gem-31B-v2.1.i1-Q6_K.gguf";
