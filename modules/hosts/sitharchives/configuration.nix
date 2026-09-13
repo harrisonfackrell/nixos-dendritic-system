@@ -14,19 +14,10 @@
 
         nixpkgs.config.allowUnfree = true;
 
-        networking = {
-            hostName = "sitharchives";
-        };
-
         users.users.obiwanshinobi = {
             isNormalUser = true;
             description = "ObiwanShinobi";
             extraGroups = [ "networkmanager" "wheel" ];
-        };
-
-        services.openssh = {
-            enable = true;
-            openFirewall = true;
         };
 
         time.timeZone = "America/Denver";
