@@ -70,7 +70,7 @@
           models = {
             # Roleplaying
             "MeroMero Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
+              cmd = "${llama-server} --no-ui -ub 4096 -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-sparse} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.9;
@@ -94,7 +94,7 @@
               };
             };
             "MeroMero Heretic" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-heretic} --mmproj ${gemma4-sparse-mmproj}";
+              cmd = "${llama-server} --no-ui -ub 4096 -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-heretic} --mmproj ${gemma4-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.9;
@@ -118,7 +118,7 @@
               };
             };
             "GlisteningGem Dense" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 4 -cram 8192 -ctv q8_0 -ctk q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
+              cmd = "${llama-server} --no-ui -ub 4096 -np 1 -ctxcp 4 -cram 8192 -ctv q8_0 -ctk q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.8;
