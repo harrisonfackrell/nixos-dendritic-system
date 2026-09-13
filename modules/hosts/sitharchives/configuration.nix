@@ -40,8 +40,9 @@
         };
         networking.firewall.allowedTCPPorts = [ 8000 ];
 
-        time.timeZone = "America/Denver";
+        environment.systemPackages = [ pkgs.git ];
 
+        time.timeZone = "America/Denver";
         system.stateVersion = "25.11";
     };
 }
