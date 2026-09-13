@@ -20,6 +20,26 @@
             extraGroups = [ "networkmanager" "wheel" ];
         };
 
+        services.open-webui = {
+            enable = true;
+            port = 8080;
+            host = "0.0.0.0";
+            openFirewall = true;
+            environment = {
+                # Public URL the instance is reached at; used for OAuth and
+                # self-referencing links.
+                WEBUI_URL = "https://sith.khetanna.party";
+            };
+        };
+
+        services.sillytavern = {
+            enable = true;
+            port = 8000;
+            configFile = "/home/obiwanshinobi/config.yaml";
+            whitelist = true;
+        };
+        networking.firewall.allowedTCPPorts = [ 8000 ];
+
         time.timeZone = "America/Denver";
 
         system.stateVersion = "25.11";
