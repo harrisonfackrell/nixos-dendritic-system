@@ -63,6 +63,20 @@
             };
         };
 
+        services.openssh = {
+            enable = true;
+            openFirewall = true;
+            settings = {
+                PermitRootLogin = "no";
+                AllowUsers = [ "obiwanshinobi" ];
+            };
+        };
+
+        networking.firewall = {
+            enable = true;
+            allowedTCPPorts = [ 3000 ];
+        };
+
         time.timeZone = "America/Denver";
 
         system.stateVersion = "26.05";
