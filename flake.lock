@@ -96,11 +96,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789365005,
-        "narHash": "sha256-mbVjjKD5IVBeVQkWP05XBBcB7ojf5ftaxMYfIAg/Hvg=",
+        "lastModified": 1789366364,
+        "narHash": "sha256-BpHGwXaakS/SYs7/ALPScUP1jToqh1DDtQwNi4D0uxE=",
         "owner": "harrisonfackrell",
         "repo": "crustacean",
-        "rev": "659c30726290eefdea8acf16b08106493533957c",
+        "rev": "1dd7ea600ede0c199b6b6e8f1cbe988b9b0cd723",
         "type": "github"
       },
       "original": {
