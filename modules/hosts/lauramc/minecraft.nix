@@ -23,7 +23,7 @@
                     mods = pkgs.linkFarmFromDrvs "mods" (
                         builtins.attrValues {
                             Aether-II = pkgs.fetchurl {
-                                url = "https://cdn.modrinth.com/data/JD2NSu5O/versions/Qsxsn6rl/aether_ii-26.1.2-alpha.4-neoforge.jar";
+                                url = "https://cdn.modrinth.com/data/JD2NSu5O/versions/soZ6Sulf/aether_ii-26.1.2-alpha.4.1-neoforge.jar";
                                 sha512 = "vsOTEtBr4STB00xwl9fGokf3G+Z5wupNNshtYoEI7uYvh74ApBltRJvpbEYQDU7fpTfSCnycjCPCP8+DJiJ/ug==";
                             };
                         }
