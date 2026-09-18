@@ -63,14 +63,14 @@
             };
         };
 
-        services.openssh = {
-            enable = true;
-            openFirewall = true;
-            settings = {
-                PermitRootLogin = "no";
-                AllowUsers = [ "obiwanshinobi" ];
-            };
-        };
+        # services.openssh = {
+        #     enable = true;
+        #     openFirewall = true;
+        #     settings = {
+        #         PermitRootLogin = "no";
+        #         AllowUsers = [ "obiwanshinobi" ];
+        #     };
+        # };
 
         networking.firewall = {
             enable = true;
