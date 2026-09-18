@@ -34,7 +34,7 @@
         services.sillytavern = {
             enable = true;
             port = 8000;
-            configFile = "/home/obiwanshinobi/config.yaml";
+            configFile = "/home/obiwanshinobi/sillytavern/config.yaml";
             whitelist = true;
         };
 
