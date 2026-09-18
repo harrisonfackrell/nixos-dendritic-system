@@ -66,7 +66,7 @@ let
             '')
             modules);
 in
-stdenv.mkDerivation (finalAttrs: {
+clangStdenv.mkDerivation (finalAttrs: {
     pname = "azerothcore-wotlk";
     inherit version src;
 
