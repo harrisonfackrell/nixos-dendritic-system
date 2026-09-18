@@ -1,30 +1,10 @@
-# Config-value machinery for the AzerothCore module: the module-naming
-# helpers plus the option type, flattening and rendering used to turn the
-# `*Config` attribute-set options into the flat "Key = Value" .conf files
-# the servers read. Pure: depends only on `lib` (and `builtins`), never on
-# the module's options or `pkgs`.
+# Config-value machinery for the AzerothCore module: the option type,
+# flattening and rendering used to turn the `*Config` attribute-set options
+# (core servers and module configFiles) into the flat "Key = Value" .conf
+# files the servers read. Pure: depends only on `lib` (and `builtins`),
+# never on the module's options or `pkgs`.
 { lib }:
 let
-    # AzerothCore module naming helpers. A module's directory is
-    # modules/<name>/ and its conf file is conf/<base>.conf.dist, where
-    # <base> is <name> with the conventional "mod-" prefix stripped
-    # (mod-playerbots -> playerbots). The core's CMake bakes the list of
-    # conf basenames (CONFIG_FILE_LIST) from the modules' *.conf.dist files
-    # and the worldserver loads <prefix>/etc/modules/<base>.conf at runtime,
-    # so the installed conf must be named after <base>, not <name>.
-    stripMod = name: lib.removePrefix "mod-" name;
-    capitalize = s:
-        if lib.stringLength s == 0 then ""
-        else lib.toUpper (lib.substring 0 1 s) + lib.substring 1 (lib.stringLength s - 1) s;
-    # The basename (incl. .conf) of a module's conf file.
-    # (Explicit null-check: Nix 2.34 removed the `or` operator, and in
-    # older Nix `null or X` still evaluates to null, so `or` cannot be
-    # used for a null-defaulted option.)
-    confNameOf = name: entry:
-        if entry.confName == null then
-            stripMod name + ".conf"
-        else
-            entry.confName;
 
     # ---------------------------------------------------------------------
     # Config value type + rendering (shared by core and module confs).
@@ -133,9 +113,6 @@ let
 in
 {
     inherit
-        stripMod
-        capitalize
-        confNameOf
         confElemType
         confValueType
         renderConf;

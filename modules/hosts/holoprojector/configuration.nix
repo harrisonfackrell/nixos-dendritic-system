@@ -6,6 +6,7 @@
             self.nixosModules.firefox
             self.nixosModules.plymouth
             self.nixosModules.noctaliaGreeter
+            self.nixosModules.azerothcore
             inputs.home-manager.nixosModules.home-manager
         ];
 
@@ -71,6 +72,46 @@
         #         AllowUsers = [ "obiwanshinobi" ];
         #     };
         # };
+
+        services.azerothcore = {
+            enable = true;
+            # Expose auth (3724) and world (8085) to the LAN
+            openFirewall = true;
+            # Substitute the mod-playerbots fork of the core (latest commit
+            # of its `Playerbot` branch, pinned with a content hash) for the
+            # module's upstream azerothcore/azerothcore-wotlk default.
+            source = {
+                src = pkgs.fetchFromGitHub {
+                    owner = "mod-playerbots";
+                    repo = "azerothcore-wotlk";
+                    rev = "06234df3d5ab26c93f4f1f06f3edb828b73ecd3c";
+                    hash = "sha256-0cCscmspZLqt9WtULVUph2aoA/lWW9eZb19sG4n+HtI=";
+                };
+            };
+            # Modules are keyed by the directory they're installed as
+            # (modules/<name>/). `database` ensures the MySQL database and
+            # generates the module's <Base>DatabaseInfo conf key.
+            modules = {
+                mod-playerbots = {
+                    # Latest commit of mod-playerbots/mod-playerbots,
+                    # pinned with a content hash.
+                    src = pkgs.fetchFromGitHub {
+                        owner = "mod-playerbots";
+                        repo = "mod-playerbots";
+                        rev = "b6696bdbd3740e575598d167d69f39f68cc0b907";
+                        hash = "sha256-xN4I8VIxZ3JebR4jZ6OpsBuxqg4E3vzRNeGOLtwo35U=";
+                    };
+                    database = "acore_playerbots";
+                };
+            };
+            # Example of custom tuning — each .conf file is an attrset
+            # option; override a key or add new ones without touching the
+            # module's defaults:
+            # worldserverConfig = {
+            #     MaxPlayers = "200";
+            #     "GM.StartLevel" = "50";
+            # };
+        };
 
         networking.firewall = {
             enable = true;

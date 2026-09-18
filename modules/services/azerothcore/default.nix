@@ -27,13 +27,27 @@
     #               owner = "mod-playerbots"; repo = "mod-playerbots";
     #               rev = "…"; hash = "sha256-…";
     #           };
-    #           # Sets the acore_playerbots DB and auto-generates the
-    #           # PlayerbotsDatabaseInfo connection string in its conf.
+    #           # Provisions (ensures + grants) the acore_playerbots MySQL
+    #           # database. The connection string itself is a normal conf
+    #           # key the host adds to configFiles below, built with the
+    #           # services.azerothcore.dbInfo helper:
     #           database = "acore_playerbots";
-    #           # Optional extra conf keys (see below).
-    #           # config = { SomeKey = "value"; };
+    #           # The module's conf files: key = file name (must match the
+    #           # module's conf/<name>.conf.dist), value = its key/value
+    #           # pairs (same shape as the core *Config options).
+    #           configFiles = {
+    #               playerbots.conf = {
+    #                   PlayerbotsDatabaseInfo = dbInfo "acore_playerbots";
+    #                   SomeKey = "value";
+    #               };
+    #           };
     #       };
     #   };
+    #
+    # dbInfo is exposed as a module option (a function taking a database
+    # name) so hosts can build *DatabaseInfo connection strings for module
+    # confs without hardcoding the MySQL user/password:
+    #   services.azerothcore.dbInfo "acore_playerbots"
     #
     # The built package is exposed as pkgs.azerothcoreWotlk (via a nixpkgs
     # overlay) and the servers run from it through the systemd units defined
@@ -73,6 +87,17 @@
         # Connection strings shared by all servers + modules:
         #   host;port;user;password;database
         dbInfo = db: "127.0.0.1;3306;${cfg.mysqlUser};${cfg.mysqlPassword};${db}";
+
+        # nixpkgs has no built-in "function" option type, so the dbInfo
+        # helper option uses a minimal hand-rolled one: any function passes
+        # (the host is responsible for the argument/return contract, which
+        # the description documents).
+        funcType = lib.mkOptionType {
+            name = "function";
+            description = "a function";
+            descriptionClass = "composite";
+            check = builtins.isFunction;
+        };
 
         mysqlExe = "${pkgs.mysql84}/bin/mysql";
         logsDir = "/var/lib/azerothcore/logs";
@@ -141,9 +166,10 @@
         # ---------------------------------------------------------------------
         # Materialize every config file as a store path (pkgs.writeText) and
         # describe where it goes. The core reads <prefix>/etc/<name>.conf and,
-        # per module, <prefix>/etc/modules/<base>.conf, so each entry carries:
+        # per module conf file, <prefix>/etc/modules/<file>, so each entry
+        # carries:
         # - name:   the install path inside the package ("etc/<name>.conf" for
-        #           core files, "etc/modules/<confName>" for module files).
+        #           core files, "etc/modules/<file>" for module files).
         #           The package lays a *symlink* there (see _lib/package.nix);
         # - etcRel: the path under ${etcConfDir} where the *content* is
         #           materialized via environment.etc, and the symlink's target.
@@ -159,31 +185,26 @@
                 etcRel = "${name}.conf";
                 file = pkgs.writeText "${name}.conf" (conf.renderConf name cfg."${name}Config");
             };
+        # One entry per conf file of a module. The file name is the key of the
+        # module's configFiles attrset; it must match the module's
+        # conf/<name>.conf.dist, since the worldserver loads
+        # <prefix>/etc/modules/<name> for each compiled-in module. The
+        # connection string (if the module uses a database) is a plain conf
+        # key the host writes into the file's value, built with dbInfo.
         moduleConfFile = name: entry:
-            let
-                confName = conf.confNameOf name entry;
-                # If the module declares a database, auto-generate its
-                # <CapitalizedBase>DatabaseInfo connection string. The host can
-                # still override or add keys via `config`.
-                autoDbKey =
-                    if entry.database == null then
-                        { }
-                    else
-                        builtins.listToAttrs [
-                            {
-                                name = conf.capitalize (conf.stripMod name) + "DatabaseInfo";
-                                value = dbInfo entry.database;
-                            }
-                        ];
-            in
-            {
-                name = "etc/modules/${confName}";
-                etcRel = "modules/${confName}";
-                file = pkgs.writeText confName (conf.renderConf confName (autoDbKey // entry.config));
-            };
+            lib.mapAttrsToList (file: values:
+                {
+                    name = "etc/modules/${file}";
+                    etcRel = "modules/${file}";
+                    file = pkgs.writeText "${name}-${file}" (conf.renderConf file values);
+                }) entry.configFiles;
+        # Module confs: mapAttrsToList yields one *list* of entries per module
+        # (moduleConfFile is list-valued), so flatten one level to get a flat
+        # list. (lib.concatMapAttrs is not usable: it expects an attrset
+        # return, not a list.)
         configFiles =
             (lib.map coreConfFile [ "authserver" "worldserver" "dbimport" ])
-            ++ (lib.mapAttrsToList moduleConfFile cfg.modules);
+            ++ lib.flatten (lib.mapAttrsToList (name: entry: moduleConfFile name entry) cfg.modules);
 
         # ---------------------------------------------------------------------
         # Build the package with this host's source tree, version, the
@@ -317,35 +338,29 @@
                                     (AzerothCore's module layout).
                                 '';
                             };
-                            confName = lib.mkOption {
-                                type = lib.types.nullOr lib.types.str;
-                                default = null;
-                                description = ''
-                                    Basename (including .conf) of the module's
-                                    config file, matching its conf/<name>.conf.dist.
-                                    Defaults to the module name with the "mod-"
-                                    prefix stripped plus ".conf" (mod-playerbots ->
-                                    playerbots.conf).
-                                '';
-                            };
                             database = lib.mkOption {
                                 type = lib.types.nullOr lib.types.str;
                                 default = null;
                                 description = ''
                                     If set, the module's MySQL database name. The
-                                    database is ensured and granted to, and a
-                                    <Module>DatabaseInfo connection string key is
-                                    added to the module's conf automatically.
+                                    database is ensured and granted to the app
+                                    user. The connection string itself is a plain
+                                    conf key - add it to configFiles, e.g.
+                                    PlayerbotsDatabaseInfo = dbInfo "acore_playerbots";
                                 '';
                             };
-                            config = lib.mkOption {
-                                type = conf.confValueType;
+                            configFiles = lib.mkOption {
+                                type = lib.types.attrsOf conf.confValueType;
                                 default = { };
                                 description = ''
-                                    Extra key/value pairs for the module's conf
-                                    file (same shape as the core *Config options).
-                                    Merged over the auto-generated
-                                    <Module>DatabaseInfo key.
+                                    The module's conf files. Each key is a file
+                                    name (e.g. "playerbots.conf") that must match
+                                    the module's conf/<name>.conf.dist - the
+                                    worldserver loads <prefix>/etc/modules/<name>
+                                    for each compiled-in module. Each value is
+                                    that file's key/value pairs (same shape as
+                                    the core *Config options). An empty set
+                                    installs no conf files for the module.
                                 '';
                             };
                         };
@@ -404,6 +419,23 @@
                 type = lib.types.str;
                 default = "acore";
                 description = "MySQL password for the database user. Used to build the default *DatabaseInfo connection strings. Change in production.";
+            };
+
+            # Helper exposed to hosts for building *DatabaseInfo connection
+            # strings (e.g. for a module's conf files) without hardcoding the
+            # MySQL user/password: dbInfo "acore_playerbots" ->
+            # "127.0.0.1;3306;acore;acore;acore_playerbots". A plain function
+            # option; the default lambda captures cfg so it reflects the
+            # host's (possibly overridden) mysqlUser / mysqlPassword.
+            dbInfo = lib.mkOption {
+                type = funcType;
+                default = dbInfo;
+                description = ''
+                    Build a MySQL connection string (host;port;user;password;
+                    database) for the given database name, using mysqlUser and
+                    mysqlPassword. Use it in module configFiles, e.g.
+                    PlayerbotsDatabaseInfo = dbInfo "acore_playerbots";
+                '';
             };
 
             # -----------------------------------------------------------------
