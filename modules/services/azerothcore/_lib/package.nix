@@ -47,7 +47,7 @@
     owner = "azerothcore";
     repo = "azerothcore-wotlk";
     rev = "f1bef3bc0a2f6396175e184c2cac70df77b46d11";
-    hash = "sha256-nUC7UoNTw0H1l6-7Qe7M2ClHGmJvSCzCEITh6SupLO0";
+    hash = "sha256-0cCscmspZLqt9WtULVUph2aoA/lWW9eZb19sG4n+HtI=";
 }, version ? "17.0.0", modules ? { }, configFiles ? [ ] }:
 with pkgs;
 let
