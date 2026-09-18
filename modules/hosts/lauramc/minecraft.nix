@@ -24,7 +24,7 @@
                         builtins.attrValues {
                             Aether-II = pkgs.fetchurl {
                                 url = "https://cdn.modrinth.com/data/JD2NSu5O/versions/soZ6Sulf/aether_ii-26.1.2-alpha.4.1-neoforge.jar";
-                                sha512 = "vsOTEtBr4STB00xwl9fGokf3G+Z5wupNNshtYoEI7uYvh74ApBltRJvpbEYQDU7fpTfSCnycjCPCP8+DJiJ/ug==";
+                                sha512 = "9bP86hcbglTl76HP35AAXbeOVCHzI79DdK8FqtMgstT5cJlU8Xc5HLVnsattb3w1Xu5yuB+STjTqEf9B5MBjgQ==";
                             };
                         }
                     );
