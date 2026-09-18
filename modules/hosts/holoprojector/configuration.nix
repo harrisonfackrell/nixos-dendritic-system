@@ -89,8 +89,9 @@
                 };
             };
             # Modules are keyed by the directory they're installed as
-            # (modules/<name>/). `database` ensures the MySQL database and
-            # generates the module's <Base>DatabaseInfo conf key.
+            # (modules/<name>/). `database` only provisions the MySQL
+            # database; the connection string is a plain conf key written in
+            # `configFiles` below, built with the module's `dbInfo` helper.
             modules = {
                 mod-playerbots = {
                     # Latest commit of mod-playerbots/mod-playerbots,
@@ -102,6 +103,14 @@
                         hash = "sha256-xN4I8VIxZ3JebR4jZ6OpsBuxqg4E3vzRNeGOLtwo35U=";
                     };
                     database = "acore_playerbots";
+                    # The module's conf file (the key must match its
+                    # conf/playerbots.conf.dist), holding the connection
+                    # string for the database above.
+                    configFiles = {
+                        playerbots.conf = {
+                            PlayerbotsDatabaseInfo = config.services.azerothcore.dbInfo "acore_playerbots";
+                        };
+                    };
                 };
             };
             # Example of custom tuning — each .conf file is an attrset
