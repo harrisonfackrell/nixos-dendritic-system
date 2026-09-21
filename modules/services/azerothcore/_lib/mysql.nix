@@ -17,9 +17,14 @@ let
     # the CREATE USER / GRANT privileges). nixpkgs' services.mysql
     # `ensureUsers` only supports unix-socket authentication and cannot
     # create a password-authenticated user, which is why this is done here.
+    # Note: no backslash before the backticks - `\`` is not a Nix escape in
+    # multi-line strings, the backslash is preserved verbatim and the MySQL
+    # client rejects it (`Unknown command '\`'`), which silently left the
+    # app user without its GRANTs. The database names are fixed `acore_*`
+    # identifiers, so bare backticks are safe.
     grantSql = lib.concatMapStrings (db: ''
-        GRANT ALL PRIVILEGES ON \`${db}\`.* TO '${cfg.mysqlUser}'@'localhost';
-        GRANT ALL PRIVILEGES ON \`${db}\`.* TO '${cfg.mysqlUser}'@'127.0.0.1';
+        GRANT ALL PRIVILEGES ON `${db}`.* TO '${cfg.mysqlUser}'@'localhost';
+        GRANT ALL PRIVILEGES ON `${db}`.* TO '${cfg.mysqlUser}'@'127.0.0.1';
     '') allDatabases;
     mysqlInitSql = pkgs.writeText "azerothcore-mysql-init.sql" ''
         CREATE USER IF NOT EXISTS '${cfg.mysqlUser}'@'localhost' IDENTIFIED BY '${cfg.mysqlPassword}';
