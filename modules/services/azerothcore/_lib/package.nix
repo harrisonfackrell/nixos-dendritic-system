@@ -95,6 +95,8 @@ clangStdenv.mkDerivation (finalAttrs: {
         test -d $sourceRoot/src
         test -f $sourceRoot/CMakeLists.txt
         ${mergeModulesScript}
+        mkdir -p $out/source
+        cp -r $sourceRoot $out/source
     '';
 
     # String-valued options (CACHE STRING in conf/dist/config.cmake) are
@@ -118,10 +120,7 @@ clangStdenv.mkDerivation (finalAttrs: {
         lib.concatMapStrings (f: ''
             install -d $(dirname $out/${f.name})
             ln -s ${f.target} $out/${f.name}
-        '') configFiles
-        + ''
-            cp -r $sourceRoot $out/source
-        '';
+        '') configFiles;
 
     passthru = { inherit src modules; };
 
