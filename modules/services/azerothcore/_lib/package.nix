@@ -96,7 +96,7 @@ clangStdenv.mkDerivation (finalAttrs: {
         test -f $sourceRoot/CMakeLists.txt
         ${mergeModulesScript}
         mkdir -p $out/source
-        cp -r $sourceRoot $out/source
+        cp -r $sourceRoot/. $out/source
     '';
 
     # String-valued options (CACHE STRING in conf/dist/config.cmake) are
