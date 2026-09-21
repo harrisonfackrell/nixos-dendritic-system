@@ -1,21 +1,31 @@
-# Config-value machinery for the AzerothCore module: the option type,
-# flattening and rendering used to turn the `*Config` attribute-set options
-# (core servers and module configFiles) into the flat "Key = Value" .conf
-# files the servers read. Pure: depends only on `lib` (and `builtins`),
-# never on the module's options or `pkgs`.
+# Config-value machinery for the AzerothCore module: the option type and
+# rendering used to turn the `*Config` attribute-set options (core servers
+# and module configFiles) into the flat "Key = Value" .conf files the
+# servers read. Pure: depends only on `lib` (and `builtins`), never on the
+# module's options or `pkgs`.
 { lib }:
 let
+
+    # The module system's default priority for a plain (un-wrapped) definition.
+    # Defined locally - it is set in nixpkgs' lib/modules.nix (value 100; a
+    # lower number takes precedence) and is not re-exported on the top-level
+    # `lib`, so it cannot be referenced as lib.defaultOverridePriority.
+    defaultOverridePriority = 100;
 
     # ---------------------------------------------------------------------
     # Config value type + rendering (shared by core and module confs).
     #
-    # One key's value: a string or an integer, or a nested attrset of the
-    # same to any depth. Nested attrsets are flattened to the dot-separated
-    # keys AzerothCore's flat Config::ParseFile expects, so both of these
-    # render identically:
-    #   worldserverConfig."Visibility.Distance" = 100;
-    #   worldserverConfig.Visibility.Distance = 100;
-    #   -> Visibility.Distance = 100
+    # AzerothCore's Config::ParseFile is *flat*: there are no nested
+    # sections, and keys that contain a dot ("GM.StartLevel",
+    # "CharacterCreating.Disabled.RaceMask", "Visibility.Distance.Continents")
+    # are single literal key names. The conf options therefore mirror that
+    # one-to-one: every key is a single literal attr name - quoted in Nix
+    # when it contains a dot - and its value is a string or an integer.
+    # Nested attribute sets are NOT a thing here (they cannot be rendered
+    # to the flat conf format and would be ambiguous for dotted keys); the
+    # element type below rejects them at evaluation time.
+    #   worldserverConfig."GM.StartLevel" = "50";
+    #   -> GM.StartLevel = 50
     #
     # The element type is a hand-built option type (lib.mkOptionType), the
     # same mechanism nixpkgs uses for bespoke option types (see
@@ -23,59 +33,42 @@ let
     # - check is deliberately permissive (AzerothCore rejects unknown/bogus
     #   keys at its own startup, and renderConf stringifies whatever
     #   survives);
-    # - merge implements the per-key deep merge so that, combined with the
-    #   per-key lib.mkDefault declarations done in `config` below, a host
-    #   overriding one key of a nested set keeps the default keys of the
-    #   siblings (scalars use last-wins).
+    # - merge implements the per-key, priority-based last-wins merge (the
+    #   default merge would concatenate strings). Combined with the per-key
+    #   lib.mkDefault declarations done in `config` below, a host overriding
+    #   one key of a file keeps every other default key intact.
     # ---------------------------------------------------------------------
     confElemType = lib.mkOptionType {
         name = "confValue";
-        description = "a server config value: a string, an integer, or a nested set of these";
-        descriptionClass = "composite";
-        check = x:
-            builtins.isAttrs x
-            || lib.types.str.check x
-            || lib.types.int.check x;
+        description = "a server config value: a string or an integer";
+        descriptionClass = "noun";
+        check = x: lib.types.str.check x || lib.types.int.check x;
         merge = loc: defs:
             let
+                # Unwrap { _type = "override"; priority; content; } values
+                # (mkOverride / mkDefault). The module system has already
+                # filtered to the highest-priority definitions, but several
+                # definitions can still share that priority (e.g. a host
+                # also declaring a key with lib.mkDefault), in which case
+                # the later definition wins.
                 unwrap = d:
                     let v = d.value; in
                     if builtins.isAttrs v && v ? _type && v._type == "override" then
                         { value = v.content; priority = v.priority; }
                     else
-                        { value = v; priority = lib.defaultOverridePriority; };
-                deepMergeTwo = a: b:
-                    if builtins.isAttrs a && builtins.isAttrs b then
-                        lib.recursiveUpdate a b
-                    else
-                        b;
+                        { value = v; priority = defaultOverridePriority; };
+                # The lowest priority number wins (Nix convention: a lower
+                # number is a stronger override); `<=` makes a tie go to the
+                # later definition.
+                unwrapped = lib.map unwrap defs;
+                best = (builtins.foldl'
+                    (acc: d: if d.priority <= acc.priority then d else acc)
+                    (builtins.head unwrapped)
+                    (lib.tail unwrapped));
             in
-            builtins.foldl' deepMergeTwo { }
-                (lib.map (u: u.value)
-                    (builtins.sort (x: y: y.priority > x.priority)
-                        (lib.map unwrap defs)));
+            best.value;
     };
     confValueType = lib.types.attrsOf confElemType;
-
-    # Flatten a (possibly nested) key/value attrset to a flat attrset whose
-    # keys are dot-joined paths. Nested attrsets become dot-separated key
-    # names (the only "nested" concept AzerothCore's flat Config::ParseFile
-    # has); everything else is stringified, since every conf value is
-    # ultimately a string.
-    #   flattenConfValues { a = 1; b = { c = "x"; }; }
-    #     == { a = "1"; b.c = "x"; }
-    flattenEntries = attrs:
-        builtins.concatMap (name:
-            let
-                v = attrs.${name};
-            in
-            if v != null && builtins.isAttrs v then
-                map (kv: { name = "${name}.${kv.name}"; value = toString kv.value; })
-                    (flattenEntries v)
-            else
-                [ { inherit name; value = toString v; } ]
-        ) (builtins.attrNames attrs);
-    flattenConfValues = attrs: builtins.listToAttrs (flattenEntries attrs);
 
     # Render a key/value attrset into the "Key = Value" lines the servers
     # expect. Keys are emitted in a stable, sensible order (the
@@ -103,12 +96,9 @@ let
         in
         known ++ unknown;
     renderConf = name: attrs:
-        let
-            flat = flattenConfValues attrs;
-        in
         ''
             # --- generated by nixos-dendritic-system (azerothcore: ${name}) ---
-            ${lib.concatStringsSep "\n" (lib.map (k: "${k} = ${flat.${k}}") (orderedNames flat))}
+            ${lib.concatStringsSep "\n" (lib.map (k: "${k} = ${toString attrs.${k}}") (orderedNames attrs))}
         '';
 in
 {

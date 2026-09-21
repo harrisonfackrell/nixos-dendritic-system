@@ -109,17 +109,16 @@ Firewall ports when `services.azerothcore.openFirewall = true` (set in
   | `services.azerothcore.modules.<name>.config` | `/etc/azerothcore/modules/<base>.conf` |
 
   Each is a set of `key = value` pairs (values are strings or integers;
-  numbers are stringified). Nested attribute sets flatten to the
-  dot-separated keys AzerothCore expects, and AzerothCore keys containing a
-  dot (e.g. `GM.StartLevel`) must be quoted in Nix. e.g.:
+  numbers are stringified). AzerothCore's config parser is flat, so every
+  key is a single literal name and AzerothCore keys containing a dot
+  (e.g. `GM.StartLevel`) must be quoted in Nix — nested attribute sets are
+  not possible. e.g.:
 
   ```nix
   services.azerothcore.worldserverConfig = {
       MaxPlayers = "200";
-      "GM.StartLevel" = "50";   # override/add a single key
-      Visibility = {            # nested set -> dot-separated keys
-          Distance.Continents = 100;
-      };
+      "GM.StartLevel" = "50";                  # override/add a single key
+      "Visibility.Distance.Continents" = 100;  # dotted key stays quoted
   };
   ```
 

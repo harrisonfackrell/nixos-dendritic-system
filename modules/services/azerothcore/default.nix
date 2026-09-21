@@ -60,18 +60,12 @@
     # the rest, e.g.:
     #   services.azerothcore.worldserverConfig.MaxPlayers = "200";
     #   services.azerothcore.worldserverConfig."GM.StartLevel" = "50";
-    #   services.azerothcore.worldserverConfig.Visibility = {
-    #       Distance.Continents = 100;
-    #       ObjectSparkles = "1";
-    #   };
-    # Values are strings or integers. Nested attribute sets are flattened to the
-    # dot-separated key names that AzerothCore's (flat) Config::ParseFile
-    # expects: the example above renders as
-    #   Visibility.Distance.Continents = 100
-    #   Visibility.ObjectSparkles = 1
-    # Keys that contain a dot but are *not* a nested path must be quoted in Nix
-    # so they stay a single literal key, e.g.
-    #   services.azerothcore.worldserverConfig."GM.StartLevel" = "50";
+    # AzerothCore's Config::ParseFile is *flat*: a key like "GM.StartLevel"
+    # (or "CharacterCreating.Disabled.RaceMask") is a single literal key name,
+    # not a nested path, so every conf key is a flat quoted attr name and
+    # values are strings or integers. Nested attribute sets are not possible;
+    # e.g.
+    #   services.azerothcore.worldserverConfig."Visibility.Distance.Continents" = "100";
     flake.nixosModules.azerothcore = { config, lib, pkgs, ... }:
     let
         cfg = config.services.azerothcore;
@@ -224,8 +218,9 @@
         # Default contents for each core config file, declared at the *leaf*
         # level (each key individually wrapped in lib.mkDefault) so that a host
         # overriding one key - or adding a new one - keeps every other default
-        # key intact. The confValueType's custom merge (lib.mkOptionType)
-        # implements the per-key deep merge for this.
+        # key intact. The confValueType's custom element merge
+        # (lib.mkOptionType in _lib/conf.nix) implements the per-key
+        # priority-based (last-wins) merge for this.
         confDefaults = {
             services.azerothcore.authserverConfig =
                 lib.mapAttrs (_: v: lib.mkDefault v) allDefaults.authserver;
@@ -422,13 +417,10 @@
             # add new ones) without disturbing the rest, e.g.:
             #   services.azerothcore.worldserverConfig.MaxPlayers = "200";
             #   services.azerothcore.worldserverConfig."GM.StartLevel" = "50";
-            #   services.azerothcore.worldserverConfig.Visibility = {
-            #       Distance.Continents = 100;
-            #       ObjectSparkles = "1";
-            #   };
-            # Values are strings or integers. Nested attrsets are flattened to
-            # dot-separated keys at render time (the example above becomes
-            # Visibility.Distance.Continents = 100).
+            # AzerothCore's Config::ParseFile is flat, so every key is a single
+            # literal name - quoted in Nix when it contains a dot - and values
+            # are strings or integers. Nested attrsets are rejected at eval
+            # time; there is no nesting to flatten.
             # -----------------------------------------------------------------
             authserverConfig = lib.mkOption {
                 type = conf.confValueType;
