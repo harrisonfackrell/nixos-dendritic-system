@@ -110,57 +110,32 @@
         # <prefix>/etc by the core's CMake), and the worldserver additionally
         # reads <prefix>/etc/modules/<module>.conf for each compiled-in module.
         #
-        # IMPORTANT: AzerothCore's Config.cpp keeps the *first* occurrence of a
-        # key and skips later duplicates (Config::ParseFile -> IsDuplicateOption).
-        # The shipped *.conf.dist files already define keys such as
-        # LoginDatabaseInfo / WorldServerPort / DataDir, so we cannot simply
-        # append our values. Instead we generate a complete .conf that contains
-        # only the keys we care about; the rest of the server behaviour falls
-        # back to the compiled-in defaults.
+        # The complete default key/value set of each core .conf file is
+        # generated from the upstream *.conf.dist files - see _lib/defaults.nix
+        # - with the host-dependent values (ports, *DatabaseInfo connection
+        # strings, log/temp dirs, the mysql binary) layered over the literals.
+        # Every conf key, including dotted ones, is a flat quoted attr name;
+        # the renderer in _lib/conf.nix writes them out verbatim.
         #
-        # SourceDirectory is deliberately NOT a conf key here: it is the one
-        # key whose value is the package's own store path (<prefix>/source,
-        # the merged source tree the SQL updaters read from), which the
-        # generated conf files cannot reference (they are build *inputs* of
-        # the package). AzerothCore's ConfigMgr checks environment variables
+        # SourceDirectory is deliberately NOT a conf key: it is the one key
+        # whose value is the package's own store path (<prefix>/source, the
+        # merged source tree the SQL updaters read from), which the generated
+        # conf files cannot reference (they are build *inputs* of the
+        # package). AzerothCore's ConfigMgr checks environment variables
         # before conf files for every key (AC_ + upper-snake-case name, even
         # for keys the file does not define), so the units in
-        # _lib/services.nix set AC_SOURCE_DIRECTORY to
-        # <package>/source instead. The tree persists in the store because
-        # the systemd units reference the package and thus GC-protect it.
+        # _lib/services.nix set AC_SOURCE_DIRECTORY to <package>/source
+        # instead. The tree persists in the store because the systemd units
+        # reference the package and thus GC-protect it.
         #
-        # NOTE: every value below is a plain *string*. DataDir in particular is
-        # coerced with toString because `cfg.dataDir` is a lib.types.path;
-        # interpolating a bare path literal forces Nix to verify the path exists
-        # at eval time, which fails on a host that hasn't been booted with this
-        # module yet.
+        # NOTE: every value is a plain string or integer. DataDir in
+        # particular is coerced with toString because `cfg.dataDir` is a
+        # lib.types.path; interpolating a bare path literal forces Nix to
+        # verify the path exists at eval time, which fails on a host that
+        # hasn't been booted with this module yet.
         # ---------------------------------------------------------------------
-        mkConfDefaults = {
-            authserver = {
-                RealmServerPort = toString cfg.authPort;
-                LoginDatabaseInfo = dbInfo "acore_auth";
-                LogsDir = logsDir;
-                TempDir = tmpDir;
-                MySQLExecutable = mysqlExe;
-            };
-            worldserver = {
-                DataDir = toString cfg.dataDir;
-                WorldServerPort = toString cfg.worldPort;
-                LoginDatabaseInfo = dbInfo "acore_auth";
-                WorldDatabaseInfo = dbInfo "acore_world";
-                CharacterDatabaseInfo = dbInfo "acore_characters";
-                LogsDir = logsDir;
-                TempDir = tmpDir;
-                MySQLExecutable = mysqlExe;
-            };
-            dbimport = {
-                LoginDatabaseInfo = dbInfo "acore_auth";
-                WorldDatabaseInfo = dbInfo "acore_world";
-                CharacterDatabaseInfo = dbInfo "acore_characters";
-                LogsDir = logsDir;
-                TempDir = tmpDir;
-                MySQLExecutable = mysqlExe;
-            };
+        allDefaults = (import ./_lib/defaults.nix) {
+            inherit cfg dbInfo logsDir tmpDir mysqlExe;
         };
 
         # ---------------------------------------------------------------------
@@ -253,11 +228,11 @@
         # implements the per-key deep merge for this.
         confDefaults = {
             services.azerothcore.authserverConfig =
-                lib.mapAttrs (_: v: lib.mkDefault v) mkConfDefaults.authserver;
+                lib.mapAttrs (_: v: lib.mkDefault v) allDefaults.authserver;
             services.azerothcore.worldserverConfig =
-                lib.mapAttrs (_: v: lib.mkDefault v) mkConfDefaults.worldserver;
+                lib.mapAttrs (_: v: lib.mkDefault v) allDefaults.worldserver;
             services.azerothcore.dbimportConfig =
-                lib.mapAttrs (_: v: lib.mkDefault v) mkConfDefaults.dbimport;
+                lib.mapAttrs (_: v: lib.mkDefault v) allDefaults.dbimport;
         };
 
         # Materialize the generated confs under /etc/azerothcore - the
@@ -461,14 +436,15 @@
                 description = ''
                     Contents of authserver.conf as a set of key/value pairs,
                     installed to /etc/azerothcore/authserver.conf (the
-                    package carries a symlink to it). See the module source
-                    for the shipped defaults
-                    (RealmServerPort, LoginDatabaseInfo, LogsDir, TempDir,
-                    MySQLExecutable). Note: SourceDirectory is not a conf key
-                    here - it is supplied as the AC_SOURCE_DIRECTORY
-                    environment variable by the systemd unit (it is the
-                    package's own store path, which the generated conf
-                    cannot reference).
+                    package carries a symlink to it). The shipped defaults
+                    (_lib/defaults.nix) are the complete set of keys from
+                    upstream's authserver.conf.dist, with the host-dependent
+                    values (RealmServerPort, LoginDatabaseInfo, LogsDir,
+                    TempDir, MySQLExecutable) overridden. Note:
+                    SourceDirectory is not a conf key here - it is supplied
+                    as the AC_SOURCE_DIRECTORY environment variable by the
+                    systemd unit (it is the package's own store path, which
+                    the generated conf cannot reference).
                 '';
             };
 
@@ -477,12 +453,13 @@
                 default = { };
                 description = ''
                     Contents of worldserver.conf as a set of key/value pairs.
-                    See the module source for the shipped defaults
-                    (DataDir, WorldServerPort, LoginDatabaseInfo,
-                    WorldDatabaseInfo, CharacterDatabaseInfo, LogsDir, TempDir,
-                    MySQLExecutable). SourceDirectory is supplied via the
-                    AC_SOURCE_DIRECTORY environment variable; see
-                    authserverConfig for the rationale.
+                    The shipped defaults (_lib/defaults.nix) are the complete
+                    set of keys from upstream's worldserver.conf.dist, with
+                    the host-dependent values (RealmID, DataDir,
+                    WorldServerPort, the *DatabaseInfo strings, LogsDir,
+                    TempDir, MySQLExecutable) overridden. SourceDirectory is
+                    supplied via the AC_SOURCE_DIRECTORY environment
+                    variable; see authserverConfig for the rationale.
                 '';
             };
 
@@ -490,12 +467,13 @@
                 type = conf.confValueType;
                 default = { };
                 description = ''
-                    Contents of dbimport.conf as a set of key/value pairs. See
-                    the module source for the shipped defaults
-                    (LoginDatabaseInfo, WorldDatabaseInfo, CharacterDatabaseInfo,
-                    LogsDir, TempDir, MySQLExecutable). SourceDirectory is
-                    supplied via the AC_SOURCE_DIRECTORY environment
-                    variable; see authserverConfig for the rationale.
+                    Contents of dbimport.conf as a set of key/value pairs.
+                    The shipped defaults (_lib/defaults.nix) are the complete
+                    set of keys from upstream's dbimport.conf.dist, with the
+                    host-dependent values (the *DatabaseInfo strings, LogsDir,
+                    TempDir, MySQLExecutable) overridden. SourceDirectory is
+                    supplied via the AC_SOURCE_DIRECTORY environment variable;
+                    see authserverConfig for the rationale.
                 '';
             };
         };
