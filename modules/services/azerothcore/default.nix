@@ -73,10 +73,8 @@
         # Private helpers. They live under `_lib/` so import-tree's default
         # filter (which ignores any path containing `/_`) does not pick them
         # up as separate flake modules; they are plain libraries imported here.
-        # The conf machinery is pure, so it is imported up front; the other
-        # helpers depend on `cfg` / `azerothcorePkg` and are imported just
-        # before they are used, further down.
-        conf = import ./_lib/conf.nix { inherit lib; };
+        # The other helpers depend on `cfg` / `azerothcorePkg` and are
+        # imported just before they are used, further down.
 
         # Connection strings shared by all servers + modules:
         #   host;port;user;password;database
@@ -97,19 +95,24 @@
         logsDir = "/var/lib/azerothcore/logs";
         tmpDir = "/var/lib/azerothcore";
 
+        # The conf machinery: the option type, the renderer and the default
+        # key/value sets of the three core conf files. It is a plain library
+        # (no `pkgs`); the defaults need the host-derived values above.
+        conf = import ./_lib/conf.nix {
+            inherit lib cfg dbInfo logsDir tmpDir mysqlExe;
+        };
+
         # ---------------------------------------------------------------------
-        # Default contents of each core config file.
+        # Default contents of each core config file (conf.defaults, generated
+        # from the upstream *.conf.dist files in _lib/conf.nix with the
+        # host-dependent values layered over the literals).
         #
         # Each server reads <prefix>/etc/<name>.conf (CONF_DIR is baked in as
         # <prefix>/etc by the core's CMake), and the worldserver additionally
         # reads <prefix>/etc/modules/<module>.conf for each compiled-in module.
         #
-        # The complete default key/value set of each core .conf file is
-        # generated from the upstream *.conf.dist files - see _lib/defaults.nix
-        # - with the host-dependent values (ports, *DatabaseInfo connection
-        # strings, log/temp dirs, the mysql binary) layered over the literals.
         # Every conf key, including dotted ones, is a flat quoted attr name;
-        # the renderer in _lib/conf.nix writes them out verbatim.
+        # the renderer (conf.renderConf) writes them out verbatim.
         #
         # SourceDirectory is deliberately NOT a conf key: it is the one key
         # whose value is the package's own store path (<prefix>/source, the
@@ -128,9 +131,7 @@
         # verify the path exists at eval time, which fails on a host that
         # hasn't been booted with this module yet.
         # ---------------------------------------------------------------------
-        allDefaults = (import ./_lib/defaults.nix) {
-            inherit cfg dbInfo logsDir tmpDir mysqlExe;
-        };
+        allDefaults = conf.defaults;
 
         # ---------------------------------------------------------------------
         # Materialize every config file as a store path (pkgs.writeText) and
@@ -429,7 +430,8 @@
                     Contents of authserver.conf as a set of key/value pairs,
                     installed to /etc/azerothcore/authserver.conf (the
                     package carries a symlink to it). The shipped defaults
-                    (_lib/defaults.nix) are the complete set of keys from
+                    (conf.defaults in _lib/conf.nix) are the complete set of
+                    keys from
                     upstream's authserver.conf.dist, with the host-dependent
                     values (RealmServerPort, LoginDatabaseInfo, LogsDir,
                     TempDir, MySQLExecutable) overridden. Note:
@@ -445,7 +447,8 @@
                 default = { };
                 description = ''
                     Contents of worldserver.conf as a set of key/value pairs.
-                    The shipped defaults (_lib/defaults.nix) are the complete
+                    The shipped defaults (conf.defaults in _lib/conf.nix) are
+                    the complete
                     set of keys from upstream's worldserver.conf.dist, with
                     the host-dependent values (RealmID, DataDir,
                     WorldServerPort, the *DatabaseInfo strings, LogsDir,
@@ -460,7 +463,8 @@
                 default = { };
                 description = ''
                     Contents of dbimport.conf as a set of key/value pairs.
-                    The shipped defaults (_lib/defaults.nix) are the complete
+                    The shipped defaults (conf.defaults in _lib/conf.nix) are
+                    the complete
                     set of keys from upstream's dbimport.conf.dist, with the
                     host-dependent values (the *DatabaseInfo strings, LogsDir,
                     TempDir, MySQLExecutable) overridden. SourceDirectory is
