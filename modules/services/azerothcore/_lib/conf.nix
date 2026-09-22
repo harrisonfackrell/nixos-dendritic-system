@@ -6,12 +6,6 @@
 { lib }:
 let
 
-    # The module system's default priority for a plain (un-wrapped) definition.
-    # Defined locally - it is set in nixpkgs' lib/modules.nix (value 100; a
-    # lower number takes precedence) and is not re-exported on the top-level
-    # `lib`, so it cannot be referenced as lib.defaultOverridePriority.
-    defaultOverridePriority = 100;
-
     # ---------------------------------------------------------------------
     # Config value type + rendering (shared by core and module confs).
     #
@@ -21,54 +15,20 @@ let
     # are single literal key names. The conf options therefore mirror that
     # one-to-one: every key is a single literal attr name - quoted in Nix
     # when it contains a dot - and its value is a string or an integer.
-    # Nested attribute sets are NOT a thing here (they cannot be rendered
-    # to the flat conf format and would be ambiguous for dotted keys); the
-    # element type below rejects them at evaluation time.
+    # Nested attribute sets are not used (they cannot be rendered to the
+    # flat conf format and would be ambiguous for dotted keys).
     #   worldserverConfig."GM.StartLevel" = "50";
     #   -> GM.StartLevel = 50
     #
-    # The element type is a hand-built option type (lib.mkOptionType), the
-    # same mechanism nixpkgs uses for bespoke option types (see
-    # config/sysctl.nix, the prometheus smokeping exporter, ibus, ...):
-    # - check is deliberately permissive (AzerothCore rejects unknown/bogus
-    #   keys at its own startup, and renderConf stringifies whatever
-    #   survives);
-    # - merge implements the per-key, priority-based last-wins merge (the
-    #   default merge would concatenate strings). Combined with the per-key
-    #   lib.mkDefault declarations done in `config` below, a host overriding
-    #   one key of a file keeps every other default key intact.
+    # The type is a plain `attrsOf (string | integer)`. No custom element
+    # type is needed: the module system merges the per-file options *per
+    # key* - `attrsOf` decomposes each whole-attrset definition into its
+    # individual keys and routes them through the standard priority-based,
+    # last-wins merge. Combined with the per-key lib.mkDefault declarations
+    # done in `config` below, a host overriding one key of a file keeps
+    # every other default key intact.
     # ---------------------------------------------------------------------
-    confElemType = lib.mkOptionType {
-        name = "confValue";
-        description = "a server config value: a string or an integer";
-        descriptionClass = "noun";
-        check = x: lib.types.str.check x || lib.types.int.check x;
-        merge = loc: defs:
-            let
-                # Unwrap { _type = "override"; priority; content; } values
-                # (mkOverride / mkDefault). The module system has already
-                # filtered to the highest-priority definitions, but several
-                # definitions can still share that priority (e.g. a host
-                # also declaring a key with lib.mkDefault), in which case
-                # the later definition wins.
-                unwrap = d:
-                    let v = d.value; in
-                    if builtins.isAttrs v && v ? _type && v._type == "override" then
-                        { value = v.content; priority = v.priority; }
-                    else
-                        { value = v; priority = defaultOverridePriority; };
-                # The lowest priority number wins (Nix convention: a lower
-                # number is a stronger override); `<=` makes a tie go to the
-                # later definition.
-                unwrapped = lib.map unwrap defs;
-                best = (builtins.foldl'
-                    (acc: d: if d.priority <= acc.priority then d else acc)
-                    (builtins.head unwrapped)
-                    (lib.tail unwrapped));
-            in
-            best.value;
-    };
-    confValueType = lib.types.attrsOf confElemType;
+    confValueType = lib.types.attrsOf (lib.types.either lib.types.str lib.types.int);
 
     # Render a key/value attrset into the "Key = Value" lines the servers
     # expect. Keys are emitted in a stable, sensible order (the
@@ -103,7 +63,6 @@ let
 in
 {
     inherit
-        confElemType
         confValueType
         renderConf;
 }

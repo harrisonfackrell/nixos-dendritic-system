@@ -218,9 +218,9 @@
         # Default contents for each core config file, declared at the *leaf*
         # level (each key individually wrapped in lib.mkDefault) so that a host
         # overriding one key - or adding a new one - keeps every other default
-        # key intact. The confValueType's custom element merge
-        # (lib.mkOptionType in _lib/conf.nix) implements the per-key
-        # priority-based (last-wins) merge for this.
+        # key intact: the module system merges the attrsOf option per key, and
+        # a plain host key (priority 100) beats the per-key mkDefault
+        # (priority 10).
         confDefaults = {
             services.azerothcore.authserverConfig =
                 lib.mapAttrs (_: v: lib.mkDefault v) allDefaults.authserver;
