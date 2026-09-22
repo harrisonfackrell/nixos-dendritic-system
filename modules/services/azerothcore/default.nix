@@ -392,6 +392,30 @@
                 description = "MySQL password for the database user. Used to build the default *DatabaseInfo connection strings. Change in production.";
             };
 
+            # Extra [mysqld] settings merged over the module's baseline
+            # (bind-address, max_connections). Same INI type as
+            # services.mysql.settings, so every key/value pair is written
+            # verbatim into the generated my.cnf under [mysqld]. A key here
+            # overrides the module baseline of the same name; a key absent
+            # here keeps its baseline value. E.g.:
+            #   services.azerothcore.mysqlSettings = {
+            #       mysqld = {
+            #           "skip-log-bin" = true;
+            #           innodb_buffer_pool_size = "4G";
+            #       };
+            #   };
+            mysqlSettings = lib.mkOption {
+                type = (pkgs.formats.ini { listsAsDuplicateKeys = true; }).type;
+                default = { };
+                description = ''
+                    Additional MySQL server settings, merged over the
+                    module's baseline settings before being passed to
+                    services.mysql.settings. Keys with dashes must be quoted
+                    (e.g. "skip-log-bin"); booleans, integers, floats and
+                    strings are all accepted.
+                '';
+            };
+
             # Helper exposed to hosts for building *DatabaseInfo connection
             # strings (e.g. for a module's conf files) without hardcoding the
             # MySQL user/password: dbInfo "acore_playerbots" ->

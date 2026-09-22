@@ -31,6 +31,22 @@ let
         CREATE USER IF NOT EXISTS '${cfg.mysqlUser}'@'127.0.0.1' IDENTIFIED BY '${cfg.mysqlPassword}';
         ${grantSql}
     '';
+    # Baseline [mysqld] settings the module always applies. The *keys*
+    # (not the mysqld section) are wrapped in lib.mkDefault so a host's
+    # services.azerothcore.mysqlSettings (merged into
+    # config.services.mysql.settings below) can override any one of them
+    # while the rest of the baseline survives the module system's merge:
+    # a plain host `mysqld` section would otherwise win at the section
+    # level and drop the whole baseline.
+    baselineSettings = {
+        mysqld = {
+            # nixpkgs' mysql `settings` is an INI type: every key must
+            # live inside a section, so bind-address goes under [mysqld]
+            # (a top-level key is rejected).
+            bind-address = lib.mkDefault "127.0.0.1";
+            max_connections = lib.mkDefault 300;
+        };
+    };
 in
 {
     inherit allDatabases mysqlInitSql;
@@ -40,13 +56,7 @@ in
         services.mysql = {
             enable = true;
             package = pkgs.mysql84;
-            settings = {
-                # nixpkgs' mysql `settings` is an INI type: every key must
-                # live inside a section, so bind-address goes under [mysqld]
-                # (a top-level key is rejected).
-                mysqld.bind-address = "127.0.0.1";
-                mysqld.max_connections = 300;
-            };
+            settings = lib.mkMerge [ baselineSettings cfg.mysqlSettings ];
             ensureDatabases = allDatabases;
         };
 
