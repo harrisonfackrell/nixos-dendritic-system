@@ -31,13 +31,6 @@
             };
         };
 
-        services.sillytavern = {
-            enable = true;
-            port = 8000;
-            configFile = "/home/obiwanshinobi/sillytavern/config.yaml";
-            whitelist = true;
-        };
-
         # Crustacean: LLM-avatar social network (server + bundled web UI)
         services.crustacean = {
             enable = true;
