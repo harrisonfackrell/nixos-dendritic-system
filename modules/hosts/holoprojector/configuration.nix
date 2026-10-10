@@ -64,19 +64,19 @@
             };
         };
 
-        # services.openssh = {
-        #     enable = true;
-        #     openFirewall = true;
-        #     settings = {
-        #         PermitRootLogin = "no";
-        #         AllowUsers = [ "obiwanshinobi" ];
-        #     };
-        # };
-
-        services.azerothcore = {
+        services.openssh = {
             enable = true;
-            # Expose auth (3724) and world (8085) to the LAN
             openFirewall = true;
+            settings = {
+                PermitRootLogin = "no";
+                AllowUsers = [ "obiwanshinobi" ];
+            };
+        };
+
+        #services.azerothcore = {
+            #enable = true;
+            # Expose auth (3724) and world (8085) to the LAN
+            #openFirewall = true;
             # Substitute the mod-playerbots fork of the core (latest commit
             # of its `Playerbot` branch, pinned with a content hash) for the
             # module's upstream azerothcore/azerothcore-wotlk default.
@@ -123,20 +123,20 @@
             # MySQL tuning, merged over the module's baseline settings
             # (see the services.azerothcore.mysqlSettings option). Written
             # verbatim into the generated my.cnf under [mysqld].
-            mysqlSettings = {
-                mysqld = {
+            #mysqlSettings = {
+                #mysqld = {
                     # Disables binary logging — reduces disk writes by
                     # 75-90%. Safe for single-server setups that don't need
                     # replication.
                     "skip-log-bin" = true;
                     # Set to ~50% of total RAM.
-                    innodb_buffer_pool_size = "4G";
-                    innodb_io_capacity = 500;
-                    innodb_io_capacity_max = 2500;
-                    transaction_isolation = "READ-COMMITTED";
-                };
-            };
-        };
+                    #innodb_buffer_pool_size = "4G";
+                    #innodb_io_capacity = 500;
+                    #innodb_io_capacity_max = 2500;
+                    #transaction_isolation = "READ-COMMITTED";
+                #};
+            #};
+        #};
 
         networking.firewall = {
             enable = true;
