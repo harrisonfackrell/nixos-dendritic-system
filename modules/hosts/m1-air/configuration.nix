@@ -35,6 +35,7 @@
                         vlc
                         lsof
                         jellyfin-desktop
+                        moonlight-qt
                     ];
                     stateVersion = config.system.stateVersion;
                 };
