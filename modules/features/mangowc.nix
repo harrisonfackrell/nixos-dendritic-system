@@ -76,7 +76,7 @@
                     "SUPER,w,spawn,uwsm app -- firefox"
                     "SUPER,d,spawn,fuzzel"
                     "SUPER,t,spawn,uwsm app -- foot"
-                    "SUPER,f,spawn,uwsm app -- nautilus"
+                    "SUPER,f,spawn,uwsm app -- nautilus --new-window"
                     "SUPER+SHIFT,q,killclient"
                     "SUPER+SHIFT,up,zoom"
                     "SUPER,left,focusstack,prev"
