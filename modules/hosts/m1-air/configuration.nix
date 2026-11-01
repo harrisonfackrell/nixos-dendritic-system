@@ -5,7 +5,7 @@
             self.nixosModules.mangowc
             self.nixosModules.firefox
             self.nixosModules.plymouth
-            self.nixosModules.noctaliaGreeter
+            # self.nixosModules.noctaliaGreeter
             inputs.apple-silicon.nixosModules.apple-silicon-support
             inputs.home-manager.nixosModules.home-manager
         ];
@@ -67,6 +67,10 @@
                 enable = true;
                 wifi.backend = "iwd";
             };
+        };
+
+        services.displayManager.regreet = {
+            enable = true;
         };
 
         time.timeZone = "America/Denver";
