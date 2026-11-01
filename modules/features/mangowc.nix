@@ -125,23 +125,23 @@
                     "fold,spawn,mmsg dispatch disable_monitor,eDP-1"
                     "unfold,spawn,mmsg dispatch enable_monitor,eDP-1"
                 ];
-                monitorrule = [
+                monitor_rule = [
                     "name:^eDP-1$,width:2560,height:1600,refresh:60,x:0,y:10,scale:1.5"
                 ];
-                exec-once = [
+                exec_once = [
                     ''${lib.getExe pkgs.swaybg} -i "${pkgs.nixos-artwork.wallpapers.catppuccin-mocha.src}" -m fill''
                     "noctalia"
                 ];
                 new_is_master = 0;
-                sloppyfocus = 1;
-                warpcursor = 1;
-                gappih = 0;
-                gappiv = 0;
-                gappoh = 0;
-                gappov = 0;
-                smartgaps = 1;
-                borderpx = 1;
-                default_mfact = 0.5;
+                sloppy_focus = 1;
+                warp_cursor = 1;
+                gap_inner_horizontal = 0;
+                gap_inner_vertical = 0;
+                gap_outer_horizontal = 0;
+                gap_outer_vertical = 0;
+                smart_gaps = 1;
+                border_px = 1;
+                default_master_factor = 0.5;
             };
         };
     };
