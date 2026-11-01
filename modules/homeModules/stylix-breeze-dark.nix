@@ -10,7 +10,6 @@
                 noctalia-shell.enable = true;
                 fuzzel.enable = true;
                 foot.enable = true;
-                regreet.enable = true;
                 swaylock = {
                     enable = true;
                     image.override = "${pkgs.nixos-artwork.wallpapers.catppuccin-latte.src}";
