@@ -142,6 +142,7 @@
                 smart_gaps = 1;
                 border_px = 1;
                 default_master_factor = 0.5;
+                focus_color = "0x435d62ff";
             };
         };
     };
