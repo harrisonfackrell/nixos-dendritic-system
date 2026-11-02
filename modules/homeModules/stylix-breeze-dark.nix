@@ -15,7 +15,6 @@
                     image.override = "${pkgs.nixos-artwork.wallpapers.catppuccin-latte.src}";
                 };
             };
-            
             icons = {
                 enable = true;
                 package = pkgs.kdePackages.breeze-icons;

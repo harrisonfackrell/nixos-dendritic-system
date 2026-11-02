@@ -16,6 +16,7 @@
                 cursor = {
                     size = 24;
                 };
+                clock.time_format = "%I:%M %p";
             };
         };
     };
