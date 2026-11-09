@@ -58,8 +58,8 @@
             sha256 = "83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53";
           };
           flint = pkgs.fetchurl {
-            url = "https://huggingface.co/unsloth/flint-GGUF/resolve/main/flint-UD-Q4_K_XL.gguf";
-            sha256 = "63c2ecc461ca545134b670c660e76fa20f47240f8d39b6510bfd21c4dd6e072f";
+            url = "https://huggingface.co/unsloth/flint-GGUF/resolve/main/flint-UD-Q5_K_XL.gguf";
+            sha256 = "086231093581c67f8bf2964f8b49198889c4f0775b39857ba63b4c37041279c2";
           };
         in {
           healthCheckTimeout = 60;
