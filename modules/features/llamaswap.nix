@@ -57,13 +57,9 @@
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-BF16.gguf";
             sha256 = "83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53";
           };
-          qwen36-sparse = pkgs.fetchurl {
-            url = "https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF/resolve/main/Qwopus3.6-35B-A3B-Coder-MTP-Q5_K_M.gguf";
-            sha256 = "b163e7cd4e8efef6f5fba979935e1b1b1a6db0f1330bf7ff129c87250d25e972";
-          };
-          qwen36-sparse-mmproj = pkgs.fetchurl {
-            url = "https://huggingface.co/Jackrong/Qwopus3.6-35B-A3B-Coder-MTP-GGUF/resolve/main/mmproj-F32.gguf";
-            sha256 = "5c82c8095717b39f29c88ebfec3607a10307785b1e14a87744603d6c582cd497";
+          flint = pkgs.fetchurl {
+            url = "https://huggingface.co/unsloth/flint-GGUF/resolve/main/flint-UD-Q4_K_XL.gguf";
+            sha256 = "59505711b703447ff1a2b27dc6607fd521e0f7a8";
           };
         in {
           healthCheckTimeout = 60;
@@ -244,44 +240,13 @@
                 };
               };
             };
-            "Qwen3.6 Sparse" = {
-              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${qwen36-sparse} --mmproj ${qwen36-sparse-mmproj} --spec-type draft-mtp --spec-draft-n-max 3";
+            "Flint Sparse" = {
+              cmd = "${llama-server} --no-ui -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${flint}";
               filters = {
                 setParams = {
-                  temperature = 0.7;
-                  top_p = 0.80;
+                  temperature = 1.0;
+                  top_p = 0.95;
                   top_k = 20;
-                  min_p = 0.0;
-                  presence_penalty = 1.5;
-                  repetition_penalty = 1.0;
-                  chat_template_kwargs = {
-                    enable_thinking = false;
-                  };
-                };
-                setParamsByID = {
-                  "$\{MODEL_ID\} (Thinking)" = {
-                    temperature = 1.0;
-                    top_p = 0.95;
-                    top_k = 20;
-                    min_p = 0.0;
-                    presence_penalty = 0.5;
-                    repetition_penalty = 1.0;
-                    chat_template_kwargs = {
-                      enable_thinking = true;
-                      preserve_thinking = true;
-                    };
-                  };
-                  "$\{MODEL_ID\} (Instruct)" = {
-                    temperature = 0.7;
-                    top_p = 0.80;
-                    top_k = 20;
-                    min_p = 0.0;
-                    presence_penalty = 1.5;
-                    repetition_penalty = 1.0;
-                    chat_template_kwargs = {
-                      enable_thinking = false;
-                    };
-                  };
                 };
               };
             };
