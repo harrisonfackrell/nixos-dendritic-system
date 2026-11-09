@@ -59,7 +59,7 @@
           };
           flint = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/flint-GGUF/resolve/main/flint-UD-Q4_K_XL.gguf";
-            sha256 = "59505711b703447ff1a2b27dc6607fd521e0f7a8";
+            sha256 = "63c2ecc461ca545134b670c660e76fa20f47240f8d39b6510bfd21c4dd6e072f";
           };
         in {
           healthCheckTimeout = 60;
