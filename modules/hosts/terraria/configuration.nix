@@ -9,6 +9,8 @@
             experimental-features = [ "nix-command" "flakes" ];
         };
 
+        nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "terraria-server" ];
+
         users.users.obiwanshinobi = {
             isNormalUser = true;
             description = "ObiwanShinobi";
