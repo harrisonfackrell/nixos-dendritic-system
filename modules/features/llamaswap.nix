@@ -23,6 +23,10 @@
             url = "https://huggingface.co/mradermacher/Glistening-Gem-31B-v2.1-i1-GGUF/resolve/main/Glistening-Gem-31B-v2.1.i1-Q6_K.gguf";
             sha256 = "a3b3c66e333021e387d52a62111deec2e617df6f7e9f3384b7ac7057abd83332";
           };
+          lunelight-dense = pkgs.fetchurl {
+            url = "https://huggingface.co/zerofata/G4-LuneLight-31B-GGUF/resolve/main/G4-LuneLight-31B-Q6_K.gguf";
+            sha256 = "f386c743018a1eb72e95545691db2b2bb67f0f6a88f91fe41ea0e3c9f4e7eeac";
+          };
           # General Productivity
           gemma4-sparse = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/gemma-4-26B-A4B-it-qat-GGUF/resolve/main/gemma-4-26B-A4B-it-qat-UD-Q4_K_XL.gguf";
@@ -126,6 +130,30 @@
                   dry_allowed_length = 6;
                   # adaptive-p is not in the default chain; must be listed explicitly to activate it
                   samplers = [ "penalties" "dry" "top_n_sigma" "top_k" "typ_p" "top_p" "min_p" "xtc" "temperature" "adaptive_p" ];
+                  chat_template_kwargs = {
+                    enable_thinking = false;
+                  };
+                };
+                setParamsByID = {
+                  "$\{MODEL_ID\} (Thinking)" = {
+                    chat_template_kwargs = {
+                      enable_thinking = true;
+                    };
+                  };
+                  "$\{MODEL_ID\} (Instruct)" = {
+                    chat_template_kwargs = {
+                      enable_thinking = false;
+                    };
+                  };
+                };
+              };
+            };
+            "LuneLight Dense" = {
+              cmd = "${llama-server} --no-ui -ub 4096 -np 1 -ctxcp 4 -cram 8192 -ctv q8_0 -ctk q8_0 --fit-target 0 --port $\{PORT\} --jinja -m ${glistening-gem-dense} --mmproj ${gemma4-dense-mmproj}";
+              filters = {
+                setParams = {
+                  temperature = 0.9;
+                  min_p = 0.5;
                   chat_template_kwargs = {
                     enable_thinking = false;
                   };
