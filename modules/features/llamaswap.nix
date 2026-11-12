@@ -55,7 +55,7 @@
           # Programming
           qwen38-dense = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/Qwen3.8-27B-UD-Q5_K_XL.gguf";
-            sha256 = "8601193d3d5760c37fb8ce1b43afebc69df5fb24e1fbc5a547c32e2200305276";
+            sha256 = "a9c4a1d9f7298dfb00c95dd83241530bc07b141ee01ec6962cd31b39d746837c";
           };
           qwen38-dense-mmproj = pkgs.fetchurl {
             url = "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/main/mmproj-BF16.gguf";
