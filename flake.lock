@@ -96,11 +96,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794465120,
-        "narHash": "sha256-AjEkJHuEbjhFSde9U9JwqCZOs8Ja0goI4WLSWPkcgwo=",
+        "lastModified": 1794472437,
+        "narHash": "sha256-MVNwgdq2nxDwhuHlbw76YbtKncg5RKWrhExeKXHY9Pc=",
         "owner": "harrisonfackrell",
         "repo": "crustacean",
-        "rev": "adeedd3d7227b170b135233debb525f7fb8e779b",
+        "rev": "8a71fb765682ca66d596654e1478128e62b43fe7",
         "type": "github"
       },
       "original": {
@@ -274,11 +274,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1794376041,
-        "narHash": "sha256-U5J39EyPpqAw8aO47WetBREzl2w18GkjlAtLg5EIZgY=",
+        "lastModified": 1794466372,
+        "narHash": "sha256-XvIxp0uhMX4TXI32cyWdAlwWsLuO0ZLV5f3wWlo9B1s=",
         "owner": "Infinidoge",
         "repo": "nix-minecraft",
-        "rev": "c7ab225b64b33d5291622734a5c666ec2665c9b5",
+        "rev": "249812c9c1173cca95d7a4b0a66c5c44f94dae91",
         "type": "github"
       },
       "original": {
