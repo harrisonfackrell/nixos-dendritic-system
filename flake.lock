@@ -265,6 +265,22 @@
         "type": "github"
       }
     },
+    "isowind": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./modules/services/isowind/_flake",
+        "type": "path"
+      },
+      "original": {
+        "path": "./modules/services/isowind/_flake",
+        "type": "path"
+      },
+      "parent": []
+    },
     "nix-minecraft": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -370,6 +386,7 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "import-tree": "import-tree",
+        "isowind": "isowind",
         "nix-minecraft": "nix-minecraft",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",

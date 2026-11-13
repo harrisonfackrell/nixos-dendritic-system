@@ -7,6 +7,7 @@
             self.nixosModules.plymouth
             self.nixosModules.noctaliaGreeter
             self.nixosModules.azerothcore
+            self.nixosModules.isowind
             inputs.home-manager.nixosModules.home-manager
         ];
 
@@ -128,7 +129,7 @@
                     # Disables binary logging — reduces disk writes by
                     # 75-90%. Safe for single-server setups that don't need
                     # replication.
-                    "skip-log-bin" = true;
+                    #"skip-log-bin" = true;
                     # Set to ~50% of total RAM.
                     #innodb_buffer_pool_size = "4G";
                     #innodb_io_capacity = 500;
@@ -137,6 +138,18 @@
                 #};
             #};
         #};
+
+        services.isowind = {
+            enable = true;
+            config = {
+                General = {
+                    hostname = "Isowind";
+                    port = 25564;
+                    maximumPlayers = 2;
+                };
+                Isowind.mode = "coop";
+            };
+        };
 
         networking.firewall = {
             enable = true;
