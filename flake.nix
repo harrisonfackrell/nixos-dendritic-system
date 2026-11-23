@@ -19,6 +19,10 @@
             url = "github:nix-community/home-manager";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+        nix-darwin = {
+            url = "github:nix-darwin/nix-darwin";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
         noctalia = {
             url = "github:noctalia-dev/noctalia";
             inputs.nixpkgs.follows = "nixpkgs";
@@ -43,7 +47,7 @@
 
     outputs = inputs:
         inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-            systems = [ "aarch64-linux" "x86_64-linux" ];
+            systems = [ "aarch64-linux" "x86_64-linux" "aarch64-darwin" ];
             imports = [
                 (inputs.import-tree ./modules)
                 inputs.home-manager.flakeModules.home-manager
