@@ -33,7 +33,14 @@
             users."harrison.fackrell" = {
                 home.packages = with pkgs; [
                     bashInteractive
+                    caddy
+                    coreutils
                     devenv
+                    docker
+                    insomnia
+                    jellyfin-media-player
+                    wget
+                    git
                 ];
                 home.stateVersion = "26.05";
             };
