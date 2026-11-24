@@ -19,6 +19,14 @@
             url = "https://huggingface.co/mradermacher/G4-MeroMero-26B-A4B-it-uncensored-heretic-i1-GGUF/resolve/main/G4-MeroMero-26B-A4B-it-uncensored-heretic.i1-Q6_K.gguf";
             sha256 = "8bdc9c0168dee138a42f373b341b5527e430635ac32aad91c66c63c620c23694";
           };
+          orion-sparse = pkgs.fetchurl {
+            url = "https://huggingface.co/bartowski/TheDrummer_Orion-26B-A4B-v1-GGUF/resolve/main/TheDrummer_Orion-26B-A4B-v1-Q8_0.gguf";
+            sha256 = "a61a8f5555e22cf5a448e634421b134f3f82c5556b56de80e418dbadb4012e0f";
+          };
+          orion-sparse-mmproj = pkgs.fetchurl {
+            url = "https://huggingface.co/bartowski/TheDrummer_Orion-26B-A4B-v1-GGUF/resolve/main/mmproj-TheDrummer_Orion-26B-A4B-v1-f16.gguf";
+            sha256 = "d9432954aba518768f84b75198e626d91d19ed5288fce9e9480afbedf8db35a4";
+          };
           glistening-gem-dense = pkgs.fetchurl {
             url = "https://huggingface.co/mradermacher/Glistening-Gem-31B-v2.1-i1-GGUF/resolve/main/Glistening-Gem-31B-v2.1.i1-Q6_K.gguf";
             sha256 = "a3b3c66e333021e387d52a62111deec2e617df6f7e9f3384b7ac7057abd83332";
@@ -95,6 +103,30 @@
             };
             "MeroMero Heretic" = {
               cmd = "${llama-server} --no-ui -ub 4096 -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${meromero-heretic} --mmproj ${gemma4-sparse-mmproj}";
+              filters = {
+                setParams = {
+                  temperature = 0.9;
+                  min_p = 0.05;
+                  chat_template_kwargs = {
+                    enable_thinking = false;
+                  };
+                };
+                setParamsByID = {
+                  "$\{MODEL_ID\} (Thinking)" = {
+                    chat_template_kwargs = {
+                      enable_thinking = true;
+                    };
+                  };
+                  "$\{MODEL_ID\} (Instruct)" = {
+                    chat_template_kwargs = {
+                      enable_thinking = false;
+                    };
+                  };
+                };
+              };
+            };
+            "Orion Sparse" = {
+              cmd = "${llama-server} --no-ui -ub 4096 -np 1 -ctxcp 16 -cram 4096 --fit-target 0 --port $\{PORT\} --jinja -m ${orion-sparse} --mmproj ${orion-sparse-mmproj}";
               filters = {
                 setParams = {
                   temperature = 0.9;
