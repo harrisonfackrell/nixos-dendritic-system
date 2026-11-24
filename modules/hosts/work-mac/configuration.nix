@@ -41,6 +41,7 @@
                     jellyfin-media-player
                     wget
                     git
+                    nodejs
                 ];
                 home.stateVersion = "26.05";
             };
